@@ -1,0 +1,12 @@
+.navBar {
+  display: flex;
+  margin-bottom: 25px;
+  width: 100%;
+  align-items: center;
+  height: 96px;
+  justify-content: space-between;
+  &__buttons {
+    padding: 8px;
+    text-decoration: none;
+  }
+}
