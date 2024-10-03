@@ -7,6 +7,7 @@ import { Register } from "./pages/Register/Register";
 import { NavBar } from "./NavBar/NavBar";
 import React from "react";
 import { StartAnAdventure } from "./pages/StartAnAdventure/StartAnAdventure";
+import { AboutUs } from "./pages/AboutUs/AboutUs";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ const ProtectedRoutes = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/start-an-adventure" element={<StartAnAdventure />} />
+          <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </div>
     </>
