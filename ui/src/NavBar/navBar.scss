@@ -1,12 +1,21 @@
 .navBar {
   display: flex;
-  margin-bottom: 25px;
   width: 100%;
   align-items: center;
   height: 96px;
   justify-content: space-between;
+  &__text {
+    color: #4B644A;
+    font-family: Kalam;
+    font-size: 40px;
+    font-weight: 700;
+  }
   &__buttons {
     padding: 8px;
     text-decoration: none;
+    color: black;
+    &__text {
+      color: #1E1E1E;
+    }
   }
 }

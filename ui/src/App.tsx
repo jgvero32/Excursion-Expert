@@ -6,6 +6,7 @@ import { Login } from "./pages/Login/Login";
 import { Register } from "./pages/Register/Register";
 import { NavBar } from "./NavBar/NavBar";
 import React from "react";
+import { StartAnAdventure } from "./pages/StartAnAdventure/StartAnAdventure";
 
 function App() {
   return (
@@ -26,13 +27,16 @@ const ProtectedRoutes = () => {
   return(
     <>
       <NavBar />
-      <Routes>
-        <Route path="/" element={<Navigate replace to="/home" />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<Navigate replace to="/home" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/start-an-adventure" element={<StartAnAdventure />} />
+        </Routes>
+      </div>
     </>
   );
 };

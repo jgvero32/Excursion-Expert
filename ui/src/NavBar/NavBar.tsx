@@ -1,6 +1,5 @@
-import React from "react";
+import { Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { Dashboard } from "../pages/Dashboard/Dashboard";
 
 interface NavButtons {
   label: string;
@@ -29,7 +28,7 @@ const navButtons: NavButtons[] = [
 export function NavBar() {
   return (
     <div className="navBar">
-      <h1>Excursion Expert</h1>
+      <Typography className="navBar__text">Excursion Expert</Typography>
       <span>
         {navButtons.map((button) => {
           return (
@@ -38,7 +37,7 @@ export function NavBar() {
               to={button.path}
               key={button.label}
             >
-              {button.label}
+              <Button className="navBar__buttons__text">{button.label}</Button>
             </Link>
           );
         })}
