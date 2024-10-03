@@ -1,0 +1,31 @@
+.inputForm {
+  &__text {
+    color: #413C58;
+    font-family: Lato;
+    font-size: 40px;
+    font-weight: 700;
+    padding-top: 190px;
+  }
+  &__container {
+    height: 221px;
+    width: 370px;
+    background-color: #A3C4BC;
+    border-radius: 8px;
+    &__content {
+      display: flex;
+      padding: 24px;
+      flex-direction: column;
+      &__textField {
+        background: #F6F5FF;
+        border-radius: 8px;
+      }
+      &__checkbox {
+        padding: 13px 9px 24px;
+        color: white;
+      }
+      &__button{
+        background-color: #413C58;
+      }
+    }
+  }
+}

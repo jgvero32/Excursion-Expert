@@ -35,7 +35,9 @@ const ProtectedRoutes = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/start-an-adventure" element={<StartAnAdventure />} />
+          <Route path="/start-an-adventure" element={<StartAnAdventure />} >
+            <Route path=":city" element={<StartAnAdventure />} />
+          </Route>
           <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </div>
