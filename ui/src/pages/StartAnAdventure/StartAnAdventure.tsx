@@ -2,6 +2,8 @@ import { InputForm } from "./components/InputForm/InputForm";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { Attractions } from "./components/Attractions/Attractions";
+import { error } from "console";
+import { mockData } from "./mockData";
 
 export function StartAnAdventure() {
   const navigate = useNavigate();
@@ -10,19 +12,27 @@ export function StartAnAdventure() {
 
   const handleSubmit = (selectedCity: string) => {
     navigate(`/start-an-adventure/${selectedCity}`);
+    // setCurrent;
     setIsSubmitted(true);
   };
 
-  const handleChooseAnother = () => {
+  const handleGoBack = () => {
+    navigate(`/start-an-adventure/`);
     setIsSubmitted(false);
   };
 
   return (
-    <div className="startAdventure">
+    <div className={isSubmitted ? "startAdventure" : "startAdventure__form"}>
       {!isSubmitted ? (
         <InputForm onSubmit={handleSubmit} />
       ) : (
-        <Attractions city={city || ''} onChooseAnother={handleChooseAnother} />
+        <>
+          {mockData.length > 0 ? (
+            <Attractions city={city || ""} onChooseAnother={handleGoBack} />
+          ) : (
+            <>ERROR</>
+          )}
+        </>
       )}
     </div>
   );

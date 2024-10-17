@@ -12,7 +12,7 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
 
   const handleSubmit = () => {
     if (useDefaultLocation) {
-      onSubmit("DefaultCity");
+      onSubmit(inputValue);
     } else {
       onSubmit(inputValue);
     }

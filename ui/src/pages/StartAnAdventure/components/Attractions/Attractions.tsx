@@ -1,4 +1,6 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
+import { AttractionCards } from "./AttractionCards/AttractionCards";
+import { ArrowCircleLeftOutlined, ArrowCircleRightOutlined } from "@mui/icons-material";
 
 interface AttractionProps {
   city: string;
@@ -7,20 +9,15 @@ interface AttractionProps {
 
 export const Attractions = (props: AttractionProps) => {
   return(
-    <Box sx={{ backgroundColor: '#B2D3C2', padding: 3, borderRadius: 2 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>
-            Selected City: {props.city}
-          </Typography>
-          <Typography>
-            Great choice! We're preparing your adventure in {props.city}.
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={props.onChooseAnother}
-            sx={{ marginTop: 2, backgroundColor: '#424874', '&:hover': { backgroundColor: '#313557' } }}
-          >
-            Choose Another Location
-          </Button>
-        </Box>
+    <div className="attractions">
+      <Stack className="attractions__container" direction="row" spacing={2}>
+        <ArrowCircleLeftOutlined className="attractions__arrows" onClick={props.onChooseAnother} />
+        <div className="attractions__container__content">
+          <Typography className="attractions__text">Sights for Chicago, Illinois</Typography>
+          <AttractionCards />
+        </div>
+        <ArrowCircleRightOutlined className="attractions__arrows" />
+      </Stack>
+    </div>
   );
 }

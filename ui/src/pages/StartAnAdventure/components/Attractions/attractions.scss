@@ -1,0 +1,29 @@
+.attractions {
+  height: 100%;
+  width: 100vw;
+  &__text {
+    color: #413C58;
+    font-family: Lato;
+    font-size: 40px;
+    font-weight: 700;
+    padding: 20px 0px;
+  }
+  &__arrows {
+    width: 83px;
+    height: 83px;
+    color: #B279A7;
+    padding: 0px 45px;
+  }
+  &__container {
+    display: flex;
+    height: -webkit-fill-available;
+    justify-content: space-between;
+    align-items: center;
+    &__content {
+      display: flex;
+      flex-direction: column;
+      height: inherit;
+      width: 60%;
+    }
+  }
+}

@@ -1,0 +1,53 @@
+import { Stack, Typography } from "@mui/material";
+import { AttractionCards } from "./AttractionCards/AttractionCards";
+import { ArrowCircleLeftOutlined, ArrowCircleRightOutlined } from "@mui/icons-material";
+
+interface AttractionProps {
+  city: string;
+  onChooseAnother: () => void;
+}
+
+export const Attractions = (props: AttractionProps) => {
+
+  //favorites state variable for each page
+  //favoriteSights, favoriteEats, favoriteNightLife
+
+  //function
+  //what state(page) are we currently in
+  //add the # (mockDataIndex) item to the corresponding favorites array
+  //give the correct favorites arrray to AttractionCards (use ReactStateVariable )
+
+
+
+  //state variable for data (array for holding the data)
+  //state variable for state (food, nightlife, shopping)
+  //state variable for itinerary ()
+
+
+  //useEffect
+  //depending what state were in 
+  //perform correct query 
+  //update data array
+
+  //onArrowClick
+  //change state variable to correct state
+  //change data variable to correct data
+  //html will render based on correct state
+  return(
+    <div className="attractions">
+      <Stack className="attractions__container" direction="row" spacing={2}>
+        <ArrowCircleLeftOutlined className="attractions__arrows" onClick={props.onChooseAnother} />
+        <div className="attractions__container__content">
+          <Typography className="attractions__text">Sights for Chicago, Illinois</Typography>
+          {/* pass in react state variable (array) as data */}
+          <AttractionCards data={reactStateVariable} onFavoriteCallBackClick favorites/>
+        </div>
+        {state===state.sights &&
+        <ArrowCircleRightOutlined className="attractions__arrows" />
+        //this onClick would be to change state/data to food options
+        //this is where the text goes under the button
+}
+      </Stack>
+    </div>
+  );
+}
