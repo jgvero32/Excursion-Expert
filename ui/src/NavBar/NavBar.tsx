@@ -1,6 +1,8 @@
-import { Button, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContext"; // Adjust the import path as needed
+import { AccountCircleOutlined } from "@mui/icons-material";
+import { useState } from "react";
 
 interface NavButtons {
   label: string;
@@ -55,21 +57,41 @@ const preLoginButtons: NavButtons[] = [
 ];
 
 export function NavBar() {
-  const { authenticated } = useAuth();
+  const { authenticated, logOut, currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      handleMenuClose();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const renderButtons = (buttons: NavButtons[]) => {
     return buttons.map((button) => (
-      <Link
-        className="navBar__buttons"
-        to={button.path}
-        key={button.label}
-      >
+      <Link className="navBar__buttons" to={button.path} key={button.label}>
         <Button
-          sx={button.backgroundColor ? {
-            backgroundColor: button.backgroundColor,
-            color: button.textColor,
-            borderRadius: "8px"
-          } : {}}
+          sx={
+            button.backgroundColor
+              ? {
+                  backgroundColor: button.backgroundColor,
+                  color: button.textColor,
+                  borderRadius: "8px",
+                }
+              : {}
+          }
           className={!button.backgroundColor ? "navBar__buttons__text" : ""}
         >
           {button.label}
@@ -80,13 +102,52 @@ export function NavBar() {
 
   return (
     <div className="navBar">
-      <Link to={"/home"} style={{textDecoration: "none"}}>
+      <Link to={"/home"} style={{ textDecoration: "none" }}>
         <Typography className="navBar__text">Excursion Expert</Typography>
       </Link>
       <span>
-        {/* authenticated && */renderButtons(postLoginButtons)}
+        {/*authenticated && */renderButtons(postLoginButtons)}
         {renderButtons(staticButtons)}
-        {/* !authenticated && */renderButtons(preLoginButtons)}
+        {/*!authenticated && */renderButtons(preLoginButtons)}
+        {/*authenticated && */(
+          <>
+            <IconButton onClick={handleMenuOpen}>
+              <AccountCircleOutlined
+                sx={{
+                  color: "#4B644A",
+                  height: "43px",
+                  width: "43px",
+                }}
+              />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <MenuItem disabled>
+                {currentUser?.firstName} {currentUser?.lastName}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  navigate("/profile");
+                }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        )}
       </span>
     </div>
   );

@@ -2,7 +2,6 @@ import { InputForm } from "./components/InputForm/InputForm";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { Attractions } from "./components/Attractions/Attractions";
-import { error } from "console";
 import { mockData } from "./mockData";
 
 export function StartAnAdventure() {
