@@ -27,9 +27,9 @@ function App() {
             <Route
               path="/*"
               element={
-              // <RequireAuth>
+                <RequireAuth>
                   <ProtectedRoutes />
-              // </RequireAuth>
+                </RequireAuth>
               }
             />
           </Routes>

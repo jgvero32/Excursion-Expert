@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface User {
@@ -9,6 +9,13 @@ interface User {
   role: string;
 }
 
+interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 interface AuthContextValue {
   currentUser: User | null;
   isAuthenticating: boolean;
@@ -16,7 +23,9 @@ interface AuthContextValue {
   authError: string | React.ReactNode;
   logOut: () => Promise<void>;
   logIn: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
+  clearError: () => void;
 }
 
 interface AuthState {
@@ -42,16 +51,71 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [authData, setAuthData] = useState<AuthState>(unauthorizedState);
+  const [authData, setAuthData] = useState<AuthState>(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      return {
+        isAuthenticating: false,
+        currentUser: JSON.parse(user),
+        authenticated: true,
+        authError: '',
+      };
+    }
+    
+    return unauthorizedState;
+  });
+
+  const clearError = () => {
+    setAuthData(prev => ({ ...prev, authError: '' }));
+  };
+
+  const handleAuthError = (error: any): React.ReactNode => {
+    const errorMessage = error.message || 'An error occurred';
+    
+    switch (errorMessage) {
+      case 'Invalid username or password':
+        return 'Invalid email or password';
+      case 'Account locked':
+        return (
+          <span>
+            Your account is locked. Please reset your password by clicking "Forgot Password" below.
+          </span>
+        );
+      case 'Too many failed login attempts':
+        return (
+          <span>
+            Your account has been locked due to too many unsuccessful login attempts. 
+            We've sent you an email to help reset your password.
+          </span>
+        );
+      case 'Email already exists':
+        return 'An account with this email already exists';
+      default:
+        return (
+          <span>
+            A System Error has occurred. Please try again later or contact us at{' '}
+            <a href="mailto:support@excursionexpert.com">support@excursionexpert.com</a>
+          </span>
+        );
+    }
+  };
 
   const checkAuthStatus = useCallback(async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
       setAuthData(prev => ({ ...prev, isAuthenticating: true }));
       
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        credentials: 'include', // Necessary for cookies
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
 
@@ -67,14 +131,54 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         currentUser: userData,
         authError: '',
       });
+
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setAuthData(unauthorizedState);
     }
   }, []);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
+  const register = async (data: RegisterData): Promise<void> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message);
+      }
+
+      // Store auth data after successful registration
+      if (responseData.token) {
+        localStorage.setItem('token', responseData.token);
+        localStorage.setItem('user', JSON.stringify(responseData.user));
+      }
+
+      setAuthData({
+        isAuthenticating: false,
+        authenticated: true,
+        currentUser: responseData.user,
+        authError: '',
+      });
+    } catch (error: any) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setAuthData(prev => ({
+        ...prev,
+        authError: handleAuthError(error),
+      }));
+      throw error;
+    }
+  };
 
   const logIn = async (email: string, password: string): Promise<void> => {
     try {
@@ -93,6 +197,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error(data.message || 'Login failed');
       }
 
+      // Store auth data
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+
       setAuthData({
         isAuthenticating: false,
         authenticated: true,
@@ -100,69 +210,60 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         authError: '',
       });
     } catch (err: any) {
-      let message: React.ReactNode;
-
-      switch (err.message) {
-        case 'Invalid username or password':
-          message = 'Invalid email or password';
-          break;
-        case 'Account locked':
-          message = (
-            <span>
-              Your account is locked. Please reset your password by clicking "Forgot Password" below.
-            </span>
-          );
-          break;
-        case 'Too many failed login attempts':
-          message = (
-            <span>
-              Your account has been locked due to too many unsuccessful login attempts. 
-              We've sent you an email to help reset your password.
-            </span>
-          );
-          break;
-        default:
-          message = (
-            <span>
-              A System Error has occurred. Please try again later or contact us at{' '}
-              <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
-            </span>
-          );
-      }
-
-      setAuthData({
-        ...unauthorizedState,
-        authError: message,
-      });
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setAuthData(prev => ({
+        ...prev,
+        authError: handleAuthError(err),
+      }));
+      throw err;
     }
   };
 
   const logOut = async (): Promise<void> => {
     try {
+      const token = localStorage.getItem('token');
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
         },
       });
     } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setAuthData(unauthorizedState);
     }
   };
 
-  const refreshUser = async (): Promise<void> => {
-    await checkAuthStatus();
-  };
+  // Check auth status when component mounts
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  // Periodic token validation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (authData.authenticated) {
+        checkAuthStatus();
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+
+    return () => clearInterval(interval);
+  }, [checkAuthStatus, authData.authenticated]);
 
   const contextValue = useMemo(
     () => ({
       logIn,
       logOut,
-      refreshUser,
+      register,
+      refreshUser: checkAuthStatus,
+      clearError,
       ...authData,
     }),
-    [authData]
+    [authData, checkAuthStatus]
   );
 
   return (
@@ -180,8 +281,15 @@ export const useAuth = (): AuthContextValue => {
   return context;
 };
 
-// Optional: Create a protected route wrapper component
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  redirectTo?: string;
+}
+
+export const ProtectedRoute = ({ 
+  children, 
+  redirectTo = '/login' 
+}: ProtectedRouteProps) => {
   const { authenticated, isAuthenticating } = useAuth();
   
   if (isAuthenticating) {
@@ -189,7 +297,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   if (!authenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to={redirectTo} />;
   }
   
   return <>{children}</>;

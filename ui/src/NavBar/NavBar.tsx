@@ -106,10 +106,10 @@ export function NavBar() {
         <Typography className="navBar__text">Excursion Expert</Typography>
       </Link>
       <span>
-        {/*authenticated && */renderButtons(postLoginButtons)}
+        {authenticated && renderButtons(postLoginButtons)}
         {renderButtons(staticButtons)}
-        {/*!authenticated && */renderButtons(preLoginButtons)}
-        {/*authenticated && */(
+        {!authenticated && renderButtons(preLoginButtons)}
+        {authenticated && (
           <>
             <IconButton onClick={handleMenuOpen}>
               <AccountCircleOutlined
