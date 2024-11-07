@@ -1,35 +1,37 @@
 import React from "react";
+import "./Login.scss";
 
 export function Login() {
-  return(
-    <>
-      <h1>Login</h1>
-      <form action="/users/register" method="POST">
-        <div>
-          <input type="username" id="username" name="username" placeholder="Username" required />
-        </div>
-        <div>
+  return (
+    <div className="login-container">
+      <h1 className="login-title">Log in</h1>
+      <form className="login-form" action="/users/register" method="POST">
+        <div className="input-group">
+          <label htmlFor="username">Username</label>
           <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Email"
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter username here test"
             required
+            className="input-field"
           />
         </div>
-        <div>
+        <div className="input-group">
+          <label htmlFor="password">Password</label>
           <input
             type="password"
-            id="password2"
-            name="password2"
-            placeholder="Confirm Password"
+            id="password"
+            name="password"
+            placeholder="Enter password here"
             required
+            className="input-field"
           />
         </div>
-        <div>
-          <input type="submit" value="Register" />
+        <div className="submit-group">
+          <button type="submit" className="submit-button">Log In</button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

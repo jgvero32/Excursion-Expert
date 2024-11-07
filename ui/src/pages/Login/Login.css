@@ -1,0 +1,74 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 100px;
+    background-color: #a0c1b8; // Light green background from the design
+    border-radius: 15px; // Rounded corners as per the design
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  }
+
+
+  .login-title {
+    position: absolute;
+    top: 10px; // Adjust as needed for vertical spacing
+    left: 10px; // Adjust as needed for horizontal spacing
+    font-size: 24px; // Adjust size as needed
+    color: #3b3b4f; // Dark text color
+    margin: 0; // Remove default margin
+  }
+
+  .login-form {
+    width: 100%;
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #ffffff;
+    }
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #ffffff; // White input background
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .input-field::placeholder {
+    color: #a5a5a5; // Gray placeholder text color
+  }
+
+  .submit-group {
+    text-align: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3b3b4f; // Dark purple button background
+    color: #ffffff; // White text color
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #2e2e3a; // Slightly darker shade for hover
+    }
+  }
