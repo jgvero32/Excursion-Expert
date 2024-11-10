@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './authContext';
 
@@ -13,7 +13,9 @@ export const RequireAuth = ({
   redirectTo = '/login',
   allowedRoles
 }: RequireAuthProps) => {
+  
   const { authenticated, isAuthenticating, currentUser } = useAuth();
+
   const { pathname, search } = useLocation();
 
   // Show loading state while checking authentication

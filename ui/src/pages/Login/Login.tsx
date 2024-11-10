@@ -31,7 +31,7 @@ export function Login() {
         const data = await response.json();
         console.log('Login successful:', data.token);
         localStorage.setItem('token', data.token); // Store token locally
-        //TODO: ssetToken(data.token); store token jelena
+        localStorage.setItem('user', JSON.stringify(data.user));
         navigate("/start-an-adventure");
       } else {
         const msg = await response.text();

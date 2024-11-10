@@ -12,7 +12,7 @@ app.use(cors())
 app.use(express.json());
 
 app.post('/api/register', async (req, res) => {
-  const { firstName, lastName, username, email, password, confirmedPassword, accountType, } = req.body;
+  const { username, email, password } = req.body;
 
   try {
     // check if email exist in database
@@ -35,25 +35,20 @@ app.post('/api/register', async (req, res) => {
     // create a new account
     console.log("register");
     console.log({
-      firstName,
-      lastName,
       username,
       email,
-      password: hashedPassword,
-      confirmedPassword,
-      accountType
+      password: hashedPassword
     });
 
     // Implement database insertion logic here
-    const userId = uuidv4()
-    const results = await pool.query(
-      `INSERT INTO users (id, username, first_name, last_name, email, password, account_type)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING id, password`,
-      [userId, username, firstName, lastName, email, hashedPassword, accountType[0]],
+    pool.query(
+      `INSERT INTO users (username, email, password)
+          VALUES ($1, $2, $3)
+          RETURNING username, password`,
+      [username, email, hashedPassword],
     )
     const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '12h' });
-    res.json({success: true, message: "Successfully registered!", token: token, accountType: accountType[0]});
+    res.json({success: true, message: "Successfully registered!", token: token, user:username});
   } catch (error) {
     console.log(error)
     res.status(500).send("Something is wrong with server")
@@ -75,8 +70,8 @@ app.post('/api/login', async (req, res) => {
     if (rows.length === 1) {
       const isMatch = await bcrypt.compare(password, rows[0].password);
       if (isMatch) {
-        const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
-        res.status(200).json({ token:token, accountType: rows[0].account_type });
+        const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '12h' });
+        res.status(200).json({ token:token, user:username});
         // res.json({ success: true, message: "Login successfully" });
       } else {
         res.status(401).send("*The username or password you entered is incorrect. Please try again!");

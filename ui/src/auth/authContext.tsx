@@ -54,8 +54,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authData, setAuthData] = useState<AuthState>(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
+    console.log('token', token);
+    console.log('user', user);
     
     if (token && user) {
+      console.log('token and user found');
       return {
         isAuthenticating: false,
         currentUser: JSON.parse(user),
@@ -142,7 +145,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (data: RegisterData): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -182,7 +185,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logIn = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -16,6 +16,7 @@ export function Register() {
 
     const formData = {
       username,
+      email,
       password,
     };
 
@@ -33,6 +34,7 @@ export function Register() {
         const data = await response.json();
         console.log('Register successful:', data.token);
         localStorage.setItem('token', data.token); // Store token locally
+        localStorage.setItem('user', JSON.stringify(data.user));
         //TODO: ssetToken(data.token); store token jelena
         navigate("/start-an-adventure");
       } else {
