@@ -1,69 +1,78 @@
 import { useState } from 'react';
 import "./Register.scss";
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/authContext';
+
+interface RegisterForm {
+  username: string;
+  email: string;
+  password: string;
+  confirmedPassword: string;
+ }
 
 export function Register() {
-  const navigate = useNavigate()
-  const [status, setStatus] = useState("")
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmedPassword, setConfirmedPassword] = useState('');
+  const [formData, setFormData] = useState<RegisterForm>({
+    username: "",
+    email: "",
+    password: "",
+    confirmedPassword: ""
+  });
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("Form was submbitted");
+  const [error, setError] = useState("");
 
-    const formData = {
-      username,
-      email,
-      password,
-    };
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+ 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+ 
+    // Validate passwords match
+    if (formData.password !== formData.confirmedPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+ 
+    // Validate password strength
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+ 
     try {
-      const response = await fetch('http://localhost:4000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      await register({
+        email: formData.email,
+        password: formData.password,
+        username: formData.username
       });
-
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Register successful:', data.token);
-        localStorage.setItem('token', data.token); // Store token locally
-        localStorage.setItem('user', JSON.stringify(data.user));
-        //TODO: ssetToken(data.token); store token jelena
-        navigate("/start-an-adventure");
-      } else {
-        // Handle errors (e.g., show error message)
-        const msg = await response.text()
-        setStatus(msg)
-        console.error('Register error:', msg);
-      }
-    } catch (error) {
-      console.error('An error occurred:', error);
-      setStatus("Something is wrong")
+      navigate("/home"); // or wherever you want to redirect after registration
+    } catch (err: any) {
+      setError(err.message || "Failed to register");
     }
   };
-
 
   return (
     <div className="register-container">
       <h1 className="register-title">Register an Account</h1>
-      <form className="register-form" action="/api/register" method="POST" onSubmit={handleSubmit}> 
+      <form className="register-form" onSubmit={handleSubmit}> 
         <div className="input-group">
           <label htmlFor="username">Username</label>
           <input
             type="text"
             id="username"
             name="username"
-            value={username}
+            value={formData.username}
             placeholder="Enter your username here"
             required
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleChange}
             className="input-field"
           />
         </div>
@@ -74,8 +83,8 @@ export function Register() {
             id="email"
             name="email"
             placeholder="Enter your email here"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             required
             className="input-field"
           />
@@ -87,8 +96,8 @@ export function Register() {
             id="password"
             name="password"
             placeholder="Enter your password here"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
             required
             className="input-field"
           />
@@ -100,13 +109,13 @@ export function Register() {
             id="confirmedPassword"
             name="confirmedPassword"
             placeholder="Enter your password here"
-            value={confirmedPassword}
-            onChange={(e) => setConfirmedPassword(e.target.value)}
+            value={formData.confirmedPassword}
+            onChange={handleChange}
             required
             className="input-field"
           />
         </div>
-        {status && <div style={{ color: "red" }}>{status}</div>}
+        {error && <div style={{ color: "red" }}>{error}</div>}
         <div className="submit-group">
           <button type="submit" className="submit-button">Register</button>
         </div>

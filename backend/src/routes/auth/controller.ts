@@ -4,6 +4,7 @@ import { LoginRequest, RegisterRequest } from './models';
 import { AuthRequest } from '../../middleware/auth.middleware';
 
 export class AuthController {
+  // Login method
   static async login(
     req: Request,
     res: Response
@@ -17,6 +18,7 @@ export class AuthController {
     }
   }
 
+  // Register method
   static async register(
     req: Request,
     res: Response
@@ -30,6 +32,7 @@ export class AuthController {
     }
   }
 
+  // Get the current authenticated user’s profile
   static async getCurrentUser(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -37,19 +40,17 @@ export class AuthController {
         return;
       }
 
-      const user = await AuthService.getUserById(req.user.id);
+      // Retrieve user by `username` instead of `id`
+      const user = await AuthService.getUserByUsername(req.user.username);
       res.json(user);
     } catch (error: any) {
       res.status(404).json({ message: error.message });
     }
   }
 
+  // Logout method
   static async logout(req: Request, res: Response): Promise<void> {
     try {
-      // If you're using session-based auth, you might want to destroy the session here
-      // If you're using JWT, you typically just let the token expire
-      // The frontend will remove the token from localStorage
-
       res.json({ message: 'Logged out successfully' });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

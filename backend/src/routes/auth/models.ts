@@ -1,19 +1,16 @@
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface RegisterRequest {
+  username: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
 }
 
 export interface User {
-  id: string;
+  username: string;
   email: string;
-  firstName: string;
-  lastName: string;
   role: string;
 }

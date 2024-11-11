@@ -4,16 +4,14 @@ import { Navigate } from 'react-router-dom';
 interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  username: string;
   role: string;
 }
 
 interface RegisterData {
   email: string;
+  username: string;
   password: string;
-  firstName: string;
-  lastName: string;
 }
 
 interface AuthContextValue {
@@ -22,7 +20,7 @@ interface AuthContextValue {
   authenticated: boolean;
   authError: string | React.ReactNode;
   logOut: () => Promise<void>;
-  logIn: (email: string, password: string) => Promise<void>;
+  logIn: (username: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
   clearError: () => void;
@@ -145,7 +143,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (data: RegisterData): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/register`, {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -183,15 +181,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const logIn = async (email: string, password: string): Promise<void> => {
+  const logIn = async (username: string, password: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();

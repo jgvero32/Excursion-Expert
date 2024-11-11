@@ -1,63 +1,51 @@
 import { useState } from 'react';
 import "./Login.scss";
-import { Link, useNavigate } from 'react-router-dom';
-import { TextField, Button, Typography } from "@mui/material";
+import { Link, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../auth/authContext';
+
+type LocationState = { redirectedFrom: string };
 
 export function Login() {
-  const navigate = useNavigate();
-  const [status, setStatus] = useState("");
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const { logIn, authenticated, authError } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const locationState = location.state as LocationState;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Form was submitted");
-
-    const formData = {
-      username,
-      password,
-    };
+    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const data = new FormData(event.currentTarget);
+      const username = data.get("username")?.toString();
+      const password = data.get("password")?.toString();
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Login successful:', data.token);
-        localStorage.setItem('token', data.token); // Store token locally
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate("/start-an-adventure");
-      } else {
-        const msg = await response.text();
-        setStatus(msg);
-        console.error('Login error:', msg);
+      if (username && password) {
+        await logIn(username, password);
       }
     } catch (error) {
-      console.error('An error occurred:', error);
-      setStatus("Something is wrong");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (       
+  if (authenticated) {
+    return <Navigate to={locationState?.redirectedFrom || "/home"} />;
+  }
+
+  return (
     <div className="login-container">
       <h1 className="login-title">Log in</h1>
-      <form className="login-form" action="/api/login" method="POST" onSubmit={handleSubmit}> 
+      <form className="login-form" onSubmit={handleSubmit}> 
         <div className="input-group">
           <label htmlFor="username">Username</label>
           <input
             type="text"
             id="username"
             name="username"
-            value={username}
             placeholder="Enter your username here"
             required
-            onChange={(e) => setUsername(e.target.value)}
             className="input-field"
           />
         </div>
@@ -68,15 +56,13 @@ export function Login() {
             id="password"
             name="password"
             placeholder="Enter your password here"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             required
             className="input-field"
           />
         </div>
-        {status && <div style={{ color: "red" }}>{status}</div>}
+        {authError && <div style={{ color: "red" }}>{authError}</div>}
         <div className="submit-group">
-          <button type="submit" className="submit-button">Log In</button>
+          <button type="submit" disabled={isLoading} className="submit-button">{isLoading ? "Logging in..." : "Login"}</button>
         </div>
         <p className="link"> Don't have an account? <Link to="/register">Register here</Link></p>
       </form>
