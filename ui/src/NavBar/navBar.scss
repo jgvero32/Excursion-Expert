@@ -1,9 +1,15 @@
 .navBar {
   display: flex;
-  width: 50%;
+  width: 100%;
   align-items: center;
-  height: 96px;
+  height: 65px;
   justify-content: space-between;
+
+  &__left {
+    display: flex;
+    align-items: center;
+  }
+  
   &__text {
     color: #4B644A;
     font-family: Kalam;

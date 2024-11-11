@@ -13,6 +13,12 @@ interface NavButtons {
 
 const staticButtons: NavButtons[] = [
   {
+    label: "Home",
+    path: "/home",
+    backgroundColor: "",
+    textColor: "",
+  },
+  {
     label: "About Us",
     path: "/about-us",
     backgroundColor: "",
@@ -105,6 +111,7 @@ export function NavBar() {
       <Link to={"/home"} style={{ textDecoration: "none" }}>
         <Typography className="navBar__text">Excursion Expert</Typography>
       </Link>
+      <div className="navBar__right">
       <span>
         {authenticated && renderButtons(postLoginButtons)}
         {renderButtons(staticButtons)}
@@ -148,7 +155,9 @@ export function NavBar() {
             </Menu>
           </>
         )}
+
       </span>
+      </div>
     </div>
   );
 }
