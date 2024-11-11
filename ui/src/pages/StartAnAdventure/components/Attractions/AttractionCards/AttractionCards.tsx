@@ -10,13 +10,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { PlaceResponse, PlaceResult } from '../Attractions';
+import { Place } from '../Attractions';
 
 interface AttractionCardsProps {
-  data: PlaceResponse[];
+  data: Place[];
   favorites: string[];
   onFavoriteClick: (itemId: string) => void;
-  onAddToItinerary: (item: PlaceResult) => void;
+  onAddToItinerary: (item: Place) => void;
 }
 
 export const AttractionCards: React.FC<AttractionCardsProps> = ({
@@ -35,76 +35,74 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
 
   return (
     <Box sx={{ height: "-webkit-fill-available", overflow: "scroll" }}>
-      {data.map((item, mockDataIndex) => (
-        item.results.map((result: PlaceResult, resultIndex: number) => {
-          const itemId = `${mockDataIndex}-${resultIndex}`;
-          return (
-            <Box
-              key={itemId}
+      {data.map((result, index) => {
+        const itemId = `${index}`;
+        return (
+          <Box
+            key={itemId}
+            sx={{
+              display: "flex",
+              paddingBottom: "30px",
+              alignItems: "center",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <Card className="card">
+              <CardContent className="card__content">
+                <span className="card__content__container">
+                  <Typography className="card__content__container__text">
+                    {result.displayName?.text}
+                  </Typography>
+                  <Checkbox
+                    icon={<FavoriteBorder />}
+                    checkedIcon={<Favorite className="card__content__container__fav" />}
+                    checked={favorites.includes(itemId)}
+                    onChange={() => onFavoriteClick(itemId)}
+                  />
+                </span>
+                <Stack direction="row" spacing={1}>
+                  {formatTypes(result.types).slice(0, 4).map((tag, tagIndex) => (
+                    <Chip 
+                      key={tagIndex} 
+                      label={tag}
+                      size="small"
+                    />
+                  ))}
+                </Stack>
+                {result.rating && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Rating: {result.rating} ({result.userRatingCount} reviews)
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+            <Button
               sx={{
-                display: "flex",
-                paddingBottom: "30px",
-                alignItems: "center",
-                justifyContent: "space-evenly",
+                width: "152px",
+                height: "40px",
+                color: "#FFF",
+                margin: "10px",
+                textTransform: "none",
+                backgroundColor: "#413C58",
               }}
             >
-              <Card className="card">
-                <CardContent className="card__content">
-                  <span className="card__content__container">
-                    <Typography className="card__content__container__text">
-                      {result.name}
-                    </Typography>
-                    <Checkbox
-                      icon={<FavoriteBorder />}
-                      checkedIcon={<Favorite className="card__content__container__fav" />}
-                      checked={favorites.includes(itemId)}
-                      onChange={() => onFavoriteClick(itemId)}
-                    />
-                  </span>
-                  <Stack direction="row" spacing={1}>
-                    {formatTypes(result.types).slice(0, 4).map((tag: string, tagIndex: number) => (
-                      <Chip 
-                        key={tagIndex} 
-                        label={tag}
-                        size="small"
-                      />
-                    ))}
-                  </Stack>
-                  {result.rating && (
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      Rating: {result.rating} ({result.user_ratings_total} reviews)
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-              <Button
-                sx={{
-                  width: "152px",
-                  height: "40px",
-                  color: "#FFF",
-                  margin: "10px",
-                  textTransform: "none",
-                  backgroundColor: "#413C58",
-                }}
-              >
-                Learn More
-              </Button>
-              <Button
-                sx={{
-                  width: "152px",
-                  height: "40px",
-                  color: "#FFF",
-                  textTransform: "none",
-                  backgroundColor: "#B279A7",
-                }}
-                onClick={() => onAddToItinerary(result)}
-              >
-                Add to itinerary
-              </Button>
-            </Box>
-          );
-        })
-      ))}
+              Learn More
+            </Button>
+            <Button
+              sx={{
+                width: "152px",
+                height: "40px",
+                color: "#FFF",
+                textTransform: "none",
+                backgroundColor: "#B279A7",
+              }}
+              onClick={() => onAddToItinerary(result)}
+            >
+              Add to itinerary
+            </Button>
+          </Box>
+        );
+      })}
     </Box>
   );
 };

@@ -14,14 +14,12 @@ import {
   DeleteOutline,
   FilterAlt,
 } from "@mui/icons-material";
-import { useState, useEffect, SyntheticEvent } from "react";
+import { useState, useEffect } from "react";
 import { mockData } from "../../mockData";
 import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
-import { useAuth } from '../../../../auth/authContext';
+import { useAuth } from "../../../../auth/authContext";
 import { RiseLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
-
-
 
 interface AttractionProps {
   city: string;
@@ -52,59 +50,61 @@ interface AttractionProps {
 // format response in backend (no need to save), send needed data to frontend. this is put in appropriate useState array
 
 // Shared interfaces that match the Google Places API structure
-interface Location {
-  lat: number;
-  lng: number;
-}
 
-interface Viewport {
-  northeast: Location;
-  southwest: Location;
-}
+type StateType =
+  | "sights"
+  | "food"
+  | "nightlife"
+  | "shopping"
+  | "finalize"
+  | "savedItinerary";
 
-interface Geometry {
-  location: Location;
-  viewport: Viewport;
-}
-
-interface Photo {
-  height: number;
-  html_attributions: string[];
-  photo_reference: string;
-  width: number;
-}
-
-export interface PlaceResult {
-  business_status: string;
-  geometry: Geometry;
-  icon: string;
-  icon_background_color: string;
-  icon_mask_base_uri: string;
-  name: string;
-  opening_hours?: {
-    open_now: boolean;
-  };
-  photos?: Photo[];
-  place_id: string;
-  rating: number;
-  reference: string;
+export interface Place {
+  id: string;
   types: string[];
-  user_ratings_total: number;
-  vicinity: string;
-  price_level?: number;
+  formattedAddress: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  rating?: number;
+  businessStatus?: string;
+  userRatingCount?: number;
+  displayName?: {
+    text: string;
+    languageCode: string;
+  };
+  goodForChildren?: boolean;
+  priceRange?: {
+    startPrice: {
+      currencyCode: string;
+      units: string;
+    };
+    endPrice?: {
+      currencyCode: string;
+      units: string;
+    };
+  };
+  priceLevel?: string;
+  restroom?: boolean;
+  accessibilityOptions?: {
+    wheelchairAccessibleEntrance?: boolean;
+    wheelchairAccessibleRestroom?: boolean;
+    wheelchairAccessibleSeating?: boolean;
+    wheelchairAccessibleParking?: boolean;
+  };
+  parkingOptions?: {
+    freeParkingLot?: boolean;
+    paidParkingLot?: boolean;
+    paidStreetParking?: boolean;
+    valetParking?: boolean;
+    paidGarageParking?: boolean;
+  };
 }
 
-export interface PlaceResponse {
-  html_attributions: string[];
-  results: PlaceResult[];
-  status: string;
-}
-
-type StateType = "sights" | "food" | "nightlife" | "shopping" | "finalize" | "savedItinerary";
-interface FilterState {
+export interface FilterState {
   priceRange: number[];
   minRating: number;
-  distance: number;
   amenities: {
     parking: boolean;
     wheelchairAccessible: boolean;
@@ -113,6 +113,9 @@ interface FilterState {
     restrooms: boolean;
     familyFriendly: boolean;
     petFriendly: boolean;
+    goodForChildren: boolean;
+    restroom: boolean;
+    parkingOptions: boolean;
   };
   openNow: boolean;
   sortBy: "relevance" | "rating" | "reviews" | "distance";
@@ -120,14 +123,16 @@ interface FilterState {
 
 export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   // State management
+  const [isLoading, setIsLoading] = useState(false);
+  const { saveItinerary, currentUser } = useAuth();
+  const [isItinerarySaved, setIsItinerarySaved] = useState(true);
   const [currentState, setCurrentState] = useState<StateType>("sights");
-  const [data, setData] = useState<PlaceResponse[]>([]);
-  const [itinerary, setItinerary] = useState<PlaceResult[]>([]);
+  const [data, setData] = useState<Place[]>([]);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [itinerary, setItinerary] = useState<Place[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 4],
     minRating: 0,
-    distance: 5,
     amenities: {
       parking: false,
       wheelchairAccessible: false,
@@ -136,20 +141,120 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       restrooms: false,
       familyFriendly: false,
       petFriendly: false,
+      goodForChildren: false,
+      restroom: false,
+      parkingOptions: false,
     },
     openNow: false,
-    sortBy: "relevance",
+    sortBy: "relevance", // Default sortBy value
   });
-  const [activeFiltersCount, setActiveFiltersCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const { saveItinerary, currentUser } = useAuth();
-  const [isItinerarySaved, setIsItinerarySaved] = useState(true);
 
+  // Predefined state-based arrays
+  const [sightsData, setSightsData] = useState<Place[]>([]);
+  const [foodData, setFoodData] = useState<Place[]>([]);
+  const [nightlifeData, setNightlifeData] = useState<Place[]>([]);
+  const [shoppingData, setShoppingData] = useState<Place[]>([]);
+
+  console.log(sightsData);
   const navigate = useNavigate();
+
+  const typeMapping: { [key: string]: string | null } = {
+    sights: "tourist_attraction",
+    food: "restaurant",
+    nightlife: "night_club",
+    shopping: "shopping_mall",
+    finalize: null,
+    savedItinerary: "",
+  };
   // Load initial data
+
+  const applyFilters = (places: Place[]) => {
+    return places.filter((place) => {
+      const isWithinPriceRange = place.priceLevel
+        ? filters.priceRange.includes(parseInt(place.priceLevel))
+        : true;
+      const meetsRating = place.rating
+        ? place.rating >= filters.minRating
+        : true;
+      const isOpenNow = filters.openNow
+        ? place.businessStatus === "OPERATIONAL"
+        : true;
+
+      // Check if place meets all selected amenities criteria
+      const meetsAmenities = Object.entries(filters.amenities).every(
+        ([key, value]) => {
+          if (value) {
+            switch (key) {
+              case "parking":
+                return (
+                  place.parkingOptions?.freeParkingLot ||
+                  place.parkingOptions?.paidParkingLot
+                );
+              case "wheelchairAccessible":
+                return place.accessibilityOptions?.wheelchairAccessibleEntrance;
+              case "publicTransit":
+                return place.accessibilityOptions?.wheelchairAccessibleEntrance;
+              case "restrooms":
+                return place.restroom === true;
+              case "familyFriendly":
+                return place.goodForChildren === true;
+              case "goodForChildren":
+                return place.goodForChildren === true;
+              case "restroom":
+                return place.restroom === true;
+              case "parkingOptions":
+                return (
+                  place.parkingOptions?.freeParkingLot ||
+                  place.parkingOptions?.paidParkingLot ||
+                  place.parkingOptions?.paidStreetParking ||
+                  place.parkingOptions?.valetParking ||
+                  place.parkingOptions?.paidGarageParking
+                );
+              default:
+                return true;
+            }
+          }
+          return true;
+        }
+      );
+
+      return isWithinPriceRange && meetsRating && isOpenNow && meetsAmenities;
+    });
+  };
+
+  // Data fetching and filtering based on state
   useEffect(() => {
-    setData(mockData);
-  }, []);
+    const filterByPageState = (pageState: StateType) => {
+      const filterType = typeMapping[pageState];
+      const allPlaces = mockData.flatMap((item) => item.places);
+      const filteredData = filterType
+        ? allPlaces.filter((place) => place.types.includes(filterType))
+        : allPlaces;
+
+      return applyFilters(filteredData); // Apply active filters
+    };
+
+    const fetchData = () => {
+      const filteredData = filterByPageState(currentState);
+      switch (currentState) {
+        case "sights":
+          setSightsData(filteredData);
+          break;
+        case "food":
+          setFoodData(filteredData);
+          break;
+        case "nightlife":
+          setNightlifeData(filteredData);
+          break;
+        case "shopping":
+          setShoppingData(filteredData);
+          break;
+      }
+      setData(filteredData);
+    };
+
+    fetchData();
+  }, [currentState, filters]);
 
   // Handle state transitions
   const handleNextState = () => {
@@ -162,67 +267,6 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       savedItinerary: "savedItinerary",
     };
     setCurrentState(stateTransitions[currentState]);
-  };
-
-  // Handle itinerary additions
-  const handleAddToItinerary = (item: PlaceResult) => {
-    setItinerary((prev) => {
-      const exists = prev.some((i) => i.place_id === item.place_id);
-      if (!exists) {
-        return [...prev, item];
-      }
-      return prev;
-    });
-  };
-
-  const handleSaveItinerary =  async () => {
-    // Save itinerary to backend
-    setIsLoading(true);
-
-    const formatedItinerary = {
-      username: currentUser?.username,
-      itineraryName: "intinerary-placeholder-name",
-      places: itinerary.map((place: PlaceResult) => ({
-        name: place.name,
-        rating: `Rating: ${place.rating} (${place.user_ratings_total} reviews)`,
-        types: place.types,
-      })),
-    };
-
-    console.log("Saving itinerary:", formatedItinerary);
-
-    try {
-      await saveItinerary(formatedItinerary);
-    } catch (error) {
-      console.error("Saving itinerary error:", error);
-    } finally {
-      setIsLoading(false);
-      setIsItinerarySaved(true);
-      setCurrentState("savedItinerary");
-    }
-  }
-
-  // Get current state title
-  const getStateTitle = () => {
-    if (currentState === "savedItinerary") {
-      return "Yay, you saved an itinerary!";
-    }
-    return `${
-      currentState.charAt(0).toUpperCase() + currentState.slice(1)
-    } for ${city}, Illinois`;
-  };
-
-  // Get next state label
-  const getNextStateLabel = () => {
-    const nextStates: Record<StateType, string> = {
-      sights: "Food",
-      food: "Nightlife",
-      nightlife: "Shopping",
-      shopping: "Finalize",
-      finalize: "Save Itinerary",
-      savedItinerary: "Save Itinerary",
-    };
-    return nextStates[currentState];
   };
 
   const handleBackNavigation = () => {
@@ -241,173 +285,73 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     }
   };
 
-  useEffect(() => {
-    let count = 0;
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 4) count++;
-    if (filters.minRating > 0) count++;
-    if (filters.distance !== 5) count++;
-    if (filters.openNow) count++;
-    if (filters.sortBy !== "relevance") count++;
-    Object.values(filters.amenities).forEach((value) => {
-      if (value) count++;
-    });
-    setActiveFiltersCount(count);
-  }, [filters]);
-
-  const handlePriceRangeChange = (
-    event: Event,
-    newValue: number | number[]
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      priceRange: newValue as number[],
-    }));
+  const handleApplyFilters = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    setFilterDialogOpen(false);
   };
 
-  const handleDistanceChange = (event: Event, newValue: number | number[]) => {
-    setFilters((prev) => ({
-      ...prev,
-      distance: newValue as number,
-    }));
-  };
-
-  const handleRatingChange = (
-    _: SyntheticEvent<Element, Event>,
-    newValue: number | null
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      minRating: newValue || 0,
-    }));
-  };
-
-  const handleAmenityChange = (amenity: keyof FilterState["amenities"]) => {
-    setFilters((prev) => ({
-      ...prev,
-      amenities: {
-        ...prev.amenities,
-        [amenity]: !prev.amenities[amenity],
-      },
-    }));
-  };
-
-  const resetFilters = () => {
-    setFilters({
-      priceRange: [0, 4],
-      minRating: 0,
-      distance: 5,
-      amenities: {
-        parking: false,
-        wheelchairAccessible: false,
-        publicTransit: false,
-        wifi: false,
-        restrooms: false,
-        familyFriendly: false,
-        petFriendly: false,
-      },
-      openNow: false,
-      sortBy: "relevance",
+  const handleAddToItinerary = (item: Place) => {
+    setItinerary((prev) => {
+      const exists = prev.some((i) => i.id === item.id);
+      return exists ? prev : [...prev, item];
     });
   };
 
-  const getFilteredData = () => {
-    if (!data.length) return [];
-
-    const typeFilterMap: Record<StateType, string> = {
-      sights: "point_of_interest",
-      food: "food",
-      nightlife: "tourist_attraction",
-      shopping: "store",
-      finalize: "",
-      savedItinerary: "",
-    };
-    const filterType = typeFilterMap[currentState];
-
-    let currentData = [...data];
-
-    // Apply filters
-    currentData = currentData.map((item) => ({
-      ...item,
-      results: item.results.filter((result) => {
-        // Page-specific Type Filter
-        if (!result.types.includes(filterType)) {
-          return false;
-        }
-
-        // Price Range Filter
-        if (
-          result.price_level !== undefined &&
-          (result.price_level < filters.priceRange[0] ||
-            result.price_level > filters.priceRange[1])
-        ) {
-          return false;
-        }
-
-        // Rating Filter
-        if (result.rating < filters.minRating) {
-          return false;
-        }
-
-        // Open Now Filter
-        if (filters.openNow && result.opening_hours?.open_now === false) {
-          return false;
-        }
-
-        // Amenity Filters
-        if (
-          filters.amenities.petFriendly &&
-          !result.types.some(
-            (type) => type.includes("pet") || type.includes("animal")
-          )
-        ) {
-          return false;
-        }
-
-        if (
-          filters.amenities.familyFriendly &&
-          !result.types.includes("family_friendly")
-        ) {
-          return false;
-        }
-
-        return true;
-      }),
-    }));
-
-    // Apply sorting
-    currentData = currentData.map((item) => ({
-      ...item,
-      results: item.results.sort((a, b) => {
-        switch (filters.sortBy) {
-          case "rating":
-            return b.rating - a.rating;
-          case "reviews":
-            return b.user_ratings_total - a.user_ratings_total;
-          case "distance":
-            // You would implement distance calculation here
-            return 0;
-          default:
-            return 0;
-        }
-      }),
-    }));
-
-    return currentData;
-  };
-
-  const getBackLabel = () => {
-    if (currentState === "sights") {
-      return "Choose Another City";
+  const getStateTitle = () => {
+    if (currentState === "savedItinerary") {
+      return "Yay, you saved an itinerary!";
     }
-    const previousStates: Record<StateType, string> = {
-      food: "Sights",
-      nightlife: "Food",
-      shopping: "Nightlife",
-      sights: "",
-      finalize: "Shopping",
-      savedItinerary: "Finalize",
+    return `${
+      currentState.charAt(0).toUpperCase() + currentState.slice(1)
+    } for ${city}, Illinois`;
+  };
+
+  const getNextStateLabel = () => {
+    const nextStates: Record<StateType, string> = {
+      sights: "Food",
+      food: "Nightlife",
+      nightlife: "Shopping",
+      shopping: "Finalize",
+      finalize: "Save Itinerary",
+      savedItinerary: "Save Itinerary",
     };
-    return previousStates[currentState];
+    return nextStates[currentState];
+  };
+
+  const getBackLabel = () =>
+    currentState === "sights"
+      ? "Choose Another City"
+      : {
+          food: "Sights",
+          nightlife: "Food",
+          shopping: "Nightlife",
+          sights: "",
+          finalize: "",
+          savedItinerary: "",
+        }[currentState];
+
+  const handleSaveItinerary = async () => {
+    // Save itinerary to backend
+    setIsLoading(true);
+    const formatedItinerary = {
+      username: currentUser?.username,
+      itineraryName: "intinerary-placeholder-name",
+      places: itinerary.map((place: Place) => ({
+        name: place.displayName?.text,
+        rating: `Rating: ${place.rating} (${place.userRatingCount} reviews)`,
+        types: place.types,
+      })),
+    };
+    console.log("Saving itinerary:", formatedItinerary);
+    try {
+      await saveItinerary(formatedItinerary);
+    } catch (error) {
+      console.error("Saving itinerary error:", error);
+    } finally {
+      setIsLoading(false);
+      setIsItinerarySaved(true);
+      setCurrentState("savedItinerary");
+    }
   };
 
   return (
@@ -423,11 +367,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               <Typography
                 variant="caption"
                 className="attractions__back-text"
-                sx={{
-                  display: "block",
-                  textAlign: "center",
-                  marginTop: 1,
-                }}
+                sx={{ display: "block", textAlign: "center", marginTop: 1 }}
               >
                 {getBackLabel()}
               </Typography>
@@ -446,36 +386,46 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 ? "Review Your Itinerary"
                 : getStateTitle()}
             </Typography>
-            {(currentState !== "finalize" && currentState !== "savedItinerary") && (
-              <Button
-                startIcon={<FilterAlt />}
-                onClick={() => setFilterDialogOpen(true)}
-                variant="outlined"
-                sx={{
-                  borderColor: "#413C58",
-                  color: "#413C58",
-                  "&:hover": {
-                    borderColor: "#B279A7",
-                    backgroundColor: "rgba(178, 121, 167, 0.04)",
-                  },
-                }}
-              >
-                Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-              </Button>
-            )}
+            {currentState !== "finalize" &&
+              currentState !== "savedItinerary" && (
+                <Button
+                  startIcon={<FilterAlt />}
+                  onClick={() => setFilterDialogOpen(true)}
+                  variant="outlined"
+                  sx={{
+                    borderColor: "#413C58",
+                    color: "#413C58",
+                    "&:hover": {
+                      borderColor: "#B279A7",
+                      backgroundColor: "rgba(178, 121, 167, 0.04)",
+                    },
+                  }}
+                >
+                  Filters
+                </Button>
+              )}
           </Stack>
 
           {currentState === "savedItinerary" && (
             <div>
-              <img src="/balloons.jpg" alt="Balloons" className="balloons-image" />
-                <Stack direction="row" justifyContent="center" spacing={2} sx={{ mt: 2 }}>
+              <img
+                src="/balloons.jpg"
+                alt="Balloons"
+                className="balloons-image"
+              />
+              <Stack
+                direction="row"
+                justifyContent="center"
+                spacing={2}
+                sx={{ mt: 2 }}
+              >
                 <Button
                   sx={{
-                  width: "152px",
-                  height: "40px",
-                  color: "#FFF",
-                  textTransform: "none",
-                  backgroundColor: "#413C58",
+                    width: "152px",
+                    height: "40px",
+                    color: "#FFF",
+                    textTransform: "none",
+                    backgroundColor: "#413C58",
                   }}
                   onClick={() => navigate("/itineraries")}
                 >
@@ -483,17 +433,17 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 </Button>
                 <Button
                   sx={{
-                  width: "152px",
-                  height: "40px",
-                  color: "#FFF",
-                  textTransform: "none",
-                  backgroundColor: "#B279A7",
+                    width: "152px",
+                    height: "40px",
+                    color: "#FFF",
+                    textTransform: "none",
+                    backgroundColor: "#B279A7",
                   }}
                   onClick={onChooseAnother}
                 >
                   Create Another Itinerary
                 </Button>
-                </Stack>
+              </Stack>
             </div>
           )}
 
@@ -503,31 +453,31 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 Selected Locations ({itinerary.length})
               </Typography>
               {itinerary.map((item) => (
-                <Card key={item.place_id} sx={{ mb: 2 }}>
+                <Card key={item.id} sx={{ mb: 2 }}>
                   <CardContent>
-                    <Typography variant="h6">{item.name}</Typography>
-                    <div>
-                      {item.types.map((type) => (
-                        <Typography
-                          key={type}
-                          variant="body2"
-                          color="textSecondary"
-                          component="span"
-                          sx={{ marginRight: 1 }}
-                        >
-                          {type}
-                        </Typography>
-                      ))}
-                    </div>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      {`Rating: ${item.rating} (${item.user_ratings_total} reviews)`}
+                    <Typography variant="h6">
+                      {item.displayName?.text}
                     </Typography>
+                    <Typography color="textSecondary">
+                      {item.formattedAddress}
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      sx={{ mt: 1 }}
+                    >
+                      <Rating value={item.rating} readOnly precision={0.5} />
+                      <Typography variant="body2">
+                        ({item.userRatingCount} reviews)
+                      </Typography>
+                    </Stack>
                     <IconButton
-                      onClick={() => {
+                      onClick={() =>
                         setItinerary((prev) =>
-                          prev.filter((i) => i.place_id !== item.place_id)
-                        );
-                      }}
+                          prev.filter((i) => i.id !== item.id)
+                        )
+                      }
                       sx={{ position: "absolute", top: 8, right: 8 }}
                     >
                       <DeleteOutline />
@@ -545,67 +495,88 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                     backgroundColor: "#302c41",
                   },
                 }}
-                onClick={() => {
-                  handleSaveItinerary();
-                }}
+                onClick={() => handleSaveItinerary()}
               >
                 Save Itinerary
               </Button>
               {isLoading && (
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "20px",
+                  }}
+                >
                   <RiseLoader color="#413C58" />
                 </div>
               )}
             </div>
           ) : (
-            <AttractionCards
-              data={getFilteredData()}
-              onAddToItinerary={handleAddToItinerary}
-              favorites={[]}
-              onFavoriteClick={function (itemId: string): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            currentState !== "savedItinerary" && (
+              <AttractionCards
+                data={data}
+                onAddToItinerary={handleAddToItinerary}
+                favorites={[]}
+                onFavoriteClick={(itemId: string) =>
+                  handleAddToItinerary(
+                    itinerary.find((item) => item.id === itemId)!
+                  )
+                }
+              />
+            )
           )}
         </div>
         <div className="attractions__right-section">
-        {currentState !== "savedItinerary" && (
-          <div>
-            <ArrowCircleRightOutlined
-              className="attractions__arrows"
-              onClick={() => {
-                if (currentState === "finalize") {
-                  handleSaveItinerary();
-                } else {
-                  handleNextState();
-                }
-              }}
-            />
-            <Typography
-              variant="caption"
-              className="attractions__next-text"
-              sx={{
-                display: "block",
-                textAlign: "center",
-                marginTop: 1,
-              }}
-            >
-              {getNextStateLabel()}
-            </Typography>
-          </div>
-        )}
+          {currentState !== "savedItinerary" && (
+            <div>
+              <ArrowCircleRightOutlined
+                className="attractions__arrows"
+                onClick={() => {
+                  if (currentState === "finalize") {
+                    handleSaveItinerary();
+                  } else {
+                    handleNextState();
+                  }
+                }}
+              />
+              <Typography
+                variant="caption"
+                className="attractions__next-text"
+                sx={{ display: "block", textAlign: "center", marginTop: 1 }}
+              >
+                {getNextStateLabel()}
+              </Typography>
+            </div>
+          )}
         </div>
       </Stack>
       <FiltersDialog
         open={filterDialogOpen}
         filters={filters}
         onClose={() => setFilterDialogOpen(false)}
-        onPriceRangeChange={handlePriceRangeChange}
-        onDistanceChange={handleDistanceChange}
-        onRatingChange={handleRatingChange}
-        onAmenityChange={handleAmenityChange}
-        onOpenNowChange={() => setFilters(prev => ({ ...prev, openNow: !prev.openNow }))}
-        onResetFilters={resetFilters}
+        onApply={handleApplyFilters}
+        onResetFilters={() => {
+          setFilterDialogOpen(false);
+          setFilters({
+            ...filters, // Reset each filter here to default
+            priceRange: [0, 4],
+            minRating: 0,
+            amenities: {
+              parking: false,
+              wheelchairAccessible: false,
+              publicTransit: false,
+              wifi: false,
+              restrooms: false,
+              familyFriendly: false,
+              petFriendly: false,
+              goodForChildren: false,
+              restroom: false,
+              parkingOptions: false,
+            },
+            openNow: false,
+            sortBy: "relevance",
+          });
+        }}
       />
     </div>
   );

@@ -1,48 +1,29 @@
-import { 
-  Button, 
-  Checkbox, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogTitle, 
-  Divider, 
-  FormControlLabel, 
-  FormGroup, 
-  IconButton, 
-  Rating, 
-  Slider, 
-  Stack, 
-  Typography 
+import React, { SyntheticEvent, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  MenuItem,
+  Rating,
+  Select,
+  SelectChangeEvent,
+  Slider,
+  Stack,
+  Typography
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
-import { SyntheticEvent } from "react";
-
-interface FilterState {
-  priceRange: number[];
-  minRating: number;
-  distance: number;
-  amenities: {
-    parking: boolean;
-    wheelchairAccessible: boolean;
-    publicTransit: boolean;
-    wifi: boolean;
-    restrooms: boolean;
-    familyFriendly: boolean;
-    petFriendly: boolean;
-  };
-  openNow: boolean;
-  sortBy: 'relevance' | 'rating' | 'reviews' | 'distance';
-}
+import { FilterState } from "../Attractions";
 
 interface FiltersDialogProps {
   open: boolean;
   filters: FilterState;
   onClose: () => void;
-  onPriceRangeChange: (event: Event, newValue: number | number[]) => void;
-  onDistanceChange: (event: Event, newValue: number | number[]) => void;
-  onRatingChange: (_: SyntheticEvent<Element, Event>, newValue: number | null) => void;
-  onAmenityChange: (amenity: keyof FilterState['amenities']) => void;
-  onOpenNowChange: () => void;
+  onApply: (newFilters: FilterState) => void; // Add this line
   onResetFilters: () => void;
 }
 
@@ -50,82 +31,82 @@ export const FiltersDialog = ({
   open,
   filters,
   onClose,
-  onPriceRangeChange,
-  onDistanceChange,
-  onRatingChange,
-  onAmenityChange,
-  onOpenNowChange,
+  onApply,
   onResetFilters
 }: FiltersDialogProps) => {
+  const [localFilters, setLocalFilters] = useState<FilterState>(filters);
+
+  // Handlers for filter changes
+  const handlePriceRangeChange = (_: Event, newValue: number | number[]) => {
+    setLocalFilters((prev) => ({ ...prev, priceRange: newValue as number[] }));
+  };
+
+  const handleMinRatingChange = (
+    _: SyntheticEvent<Element, Event>,
+    newValue: number | null
+  ) => {
+    setLocalFilters((prev) => ({ ...prev, minRating: newValue ?? 0 }));
+  };
+
+  const handleAmenityChange = (amenity: keyof FilterState["amenities"]) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      amenities: {
+        ...prev.amenities,
+        [amenity]: !prev.amenities[amenity]
+      }
+    }));
+  };
+
+  const handleSortByChange = (event: SelectChangeEvent) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      sortBy: event.target.value as FilterState["sortBy"],
+    }));
+  };
+
+  const handleOpenNowChange = () => {
+    setLocalFilters((prev) => ({ ...prev, openNow: !prev.openNow }));
+  };
+
+  const handleApplyFilters = () => {
+    onApply(localFilters);
+    onClose();
+  };
+
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-    >
-      <DialogTitle>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          Filters
-          <IconButton onClick={onClose}>
-            <Close />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Filters</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={3}>
           {/* Price Range */}
           <div>
             <Typography gutterBottom>Price Range</Typography>
             <Slider
-              value={filters.priceRange}
-              onChange={onPriceRangeChange}
+              value={localFilters.priceRange}
+              onChange={handlePriceRangeChange}
               valueLabelDisplay="auto"
-              marks={[
-                { value: 0, label: '$' },
-                { value: 1, label: '$$' },
-                { value: 2, label: '$$$' },
-                { value: 3, label: '$$$$' },
-                { value: 4, label: '$$$$$' }
-              ]}
               min={0}
               max={4}
+              marks={[
+                { value: 0, label: "$" },
+                { value: 1, label: "$$" },
+                { value: 2, label: "$$$" },
+                { value: 3, label: "$$$$" },
+                { value: 4, label: "$$$$$" }
+              ]}
             />
           </div>
 
           <Divider />
 
-          {/* Rating */}
+          {/* Minimum Rating */}
           <div>
             <Typography gutterBottom>Minimum Rating</Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Rating
-                value={filters.minRating}
-                onChange={onRatingChange}
-                precision={0.5}
-              />
-              <Typography variant="body2">& up</Typography>
-            </Stack>
-          </div>
-
-          <Divider />
-
-          {/* Distance */}
-          <div>
-            <Typography gutterBottom>Distance</Typography>
-            <Slider
-              value={filters.distance}
-              onChange={onDistanceChange}
-              valueLabelDisplay="auto"
-              valueLabelFormat={(value) => `${value} km`}
-              marks={[
-                { value: 1, label: '1 km' },
-                { value: 5, label: '5 km' },
-                { value: 10, label: '10 km' },
-                { value: 20, label: '20 km' }
-              ]}
-              min={1}
-              max={20}
+            <Rating
+              value={localFilters.minRating}
+              onChange={handleMinRatingChange}
+              precision={0.5}
             />
           </div>
 
@@ -135,18 +116,17 @@ export const FiltersDialog = ({
           <div>
             <Typography gutterBottom>Amenities</Typography>
             <FormGroup>
-              <Stack direction="row" flexWrap="wrap">
-                {Object.entries(filters.amenities).map(([key, value]) => (
+              <Stack direction="column" spacing={1}>
+                {Object.entries(localFilters.amenities).map(([key, value]) => (
                   <FormControlLabel
                     key={key}
                     control={
-                      <Checkbox 
+                      <Checkbox
                         checked={value}
-                        onChange={() => onAmenityChange(key as keyof FilterState['amenities'])}
+                        onChange={() => handleAmenityChange(key as keyof FilterState["amenities"])}
                       />
                     }
                     label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                    sx={{ width: '50%' }}
                   />
                 ))}
               </Stack>
@@ -158,30 +138,38 @@ export const FiltersDialog = ({
           {/* Open Now */}
           <FormControlLabel
             control={
-              <Checkbox 
-                checked={filters.openNow}
-                onChange={onOpenNowChange}
+              <Checkbox
+                checked={localFilters.openNow}
+                onChange={handleOpenNowChange}
               />
             }
             label="Open Now"
           />
+
+          <Divider />
+
+          {/* Sort By */}
+          <div>
+            <Typography gutterBottom>Sort By</Typography>
+            <Select
+              value={localFilters.sortBy}
+              onChange={handleSortByChange}
+              fullWidth
+            >
+              <MenuItem value="relevance">Relevance</MenuItem>
+              <MenuItem value="rating">Rating</MenuItem>
+              <MenuItem value="reviews">Reviews</MenuItem>
+              <MenuItem value="distance">Distance</MenuItem>
+            </Select>
+          </div>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onResetFilters} sx={{ color: '#413C58' }}>
-          Reset All
+        <Button onClick={onResetFilters} color="primary">
+          Reset
         </Button>
-        <Button 
-          onClick={onClose}
-          variant="contained"
-          sx={{ 
-            backgroundColor: '#B279A7',
-            '&:hover': {
-              backgroundColor: '#9b6791'
-            }
-          }}
-        >
-          Show Results
+        <Button onClick={handleApplyFilters} color="primary" variant="contained">
+          Apply
         </Button>
       </DialogActions>
     </Dialog>
