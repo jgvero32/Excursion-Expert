@@ -134,7 +134,7 @@ export function NavBar() {
               }}
             >
               <MenuItem disabled>
-                {currentUser?.firstName} {currentUser?.lastName}
+                {currentUser?.username}
               </MenuItem>
               <MenuItem
                 onClick={() => {

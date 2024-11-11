@@ -11,7 +11,7 @@ export function Itineraries() {
           Itineraries
         </Typography>
         <Typography variant="h6" gutterBottom>
-          Hello, {currentUser?.firstName} {currentUser?.lastName}
+          Hello, {currentUser?.username}
         </Typography>
       </Box>
     </Container>

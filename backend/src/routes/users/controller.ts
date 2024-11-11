@@ -21,7 +21,7 @@ export class UserController {
     res: Response
   ): Promise<void> {
     try {
-      const user = await UserService.getUserById(req.user!.id);
+      const user = await UserService.getUserByUsername(req.user!.username);
       res.json(user);
     } catch (error: any) {
       res.status(404).json({ message: error.message });
@@ -34,7 +34,7 @@ export class UserController {
   ): Promise<void> {
     try {
       const updates: UpdateUserRequest = req.body;
-      const user = await UserService.updateUser(req.user!.id, updates);
+      const user = await UserService.updateUser(req.user!.username, updates);
       res.json(user);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

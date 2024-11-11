@@ -1,13 +1,10 @@
 export interface User {
-  id: string;
+  username: string;
   email: string;
-  firstName: string;
-  lastName: string;
   role: string;
 }
 
 export interface UpdateUserRequest {
-  firstName?: string;
-  lastName?: string;
+  username?: string;
   email?: string;
 }
