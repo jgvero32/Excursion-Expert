@@ -1,4 +1,3 @@
-// models.ts
 export interface Place {
     name: string;
     rating: string;
@@ -7,6 +6,6 @@ export interface Place {
   
   export interface UpdateItineraryRequest {
     username: string;
-    name: string;
+    itineraryName: string;
     places: Place[];
   }
