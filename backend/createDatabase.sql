@@ -1,17 +1,15 @@
-
-
 -- *download pgadmin
 -- *when you open up pgadmin collapse servers
 -- *there should be the current version of PostgreSQL that youre running, collapse that
 -- *you should see databases right click and create a new one called "excursionexpert" or something similar
 -- *right click on the db you just created and click query tool
 -- *run this script and all the tables should be created on your computer :) 
+drop table filters;
+drop table landmark_type;
+drop table landmarks;
+drop table itineraries;
+drop table users;
 
--- drop table users;
--- drop table itineraries;
--- drop table landmarks;
--- drop table landmark_type;
--- drop table filters;
 DO $$
 BEGIN
 	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
@@ -27,7 +25,8 @@ role user_role DEFAULT 'user'
 );
 
 CREATE TABLE if not exists itineraries(
-iter_name VARCHAR(100) NOT NULL PRIMARY KEY,
+iter_id UUID PRIMARY KEY NOT NULL,
+iter_name VARCHAR(100),
 loc VARCHAR(100) NOT NULL,
 username VARCHAR(50) references users(username)
 );
@@ -35,8 +34,9 @@ username VARCHAR(50) references users(username)
 CREATE TABLE if not exists landmarks(
 lm_name VARCHAR(100) PRIMARY KEY,
 loc VARCHAR(100),
-maplink VARCHAR(200) NOT NULL, 
-iter_name VARCHAR(100) references itineraries(iter_name)
+maplink VARCHAR(200) NOT NULL,
+rating VARCHAR(100) NOT NULL, 
+iter_id UUID references itineraries(iter_id)
 );
 
 CREATE TABLE if not exists landmark_type(
@@ -45,7 +45,7 @@ ltype VARCHAR(50) CHECK (ltype in ('restaurant', 'cultural', 'nightlife', 'sight
 );
 
 -- allows us to store more than one filter per landmark, we dont need it but including it in case we want it
-CREATE TABLE if not exists filters(
+CREATE TABLE if not exists tags(
 lm_name VARCHAR(100) PRIMARY KEY references landmarks(lm_name),
-lm_filter VARCHAR(100) NOT NULL
+lm_tag VARCHAR(100) NOT NULL
 );
