@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import "./Register.scss";
+import { Box, Button, TextField, Typography, Link as MuiLink } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/authContext';
+import './Register.scss';
 
 interface RegisterForm {
   username: string;
   email: string;
   password: string;
   confirmedPassword: string;
- }
+}
 
 export function Register() {
   const [formData, setFormData] = useState<RegisterForm>({
@@ -19,7 +20,6 @@ export function Register() {
   });
 
   const [error, setError] = useState("");
-
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -30,97 +30,118 @@ export function Register() {
       [name]: value
     }));
   };
- 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
- 
+
     // Validate passwords match
     if (formData.password !== formData.confirmedPassword) {
       setError("Passwords do not match");
       return;
     }
- 
+
     // Validate password strength
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long");
       return;
     }
- 
+
     try {
       await register({
         email: formData.email,
         password: formData.password,
         username: formData.username
       });
-      navigate("/start-an-adventure"); // or wherever you want to redirect after registration
+      navigate("/start-an-adventure");
     } catch (err: any) {
       setError(err.message || "Failed to register");
     }
   };
 
   return (
-    <div className="register-container">
-      <h1 className="register-title">Register an Account</h1>
-      <form className="register-form" onSubmit={handleSubmit}> 
-        <div className="input-group">
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            placeholder="Enter your username here"
-            required
-            onChange={handleChange}
-            className="input-field"
-          />
-        </div>
-        <div className="input-group">
-          <label htmlFor="Email">Email</label>
-          <input
-            type="email"
-            id="email"
+    <Box className="register">
+      <Box className="register-container">
+        <Typography variant="h4" className="register-title">
+          Register an Account
+        </Typography>
+        <Box component="form" className="register-form" onSubmit={handleSubmit}>
+          <TextField
+            label="Email Address"
             name="email"
-            placeholder="Enter your email here"
+            placeholder="Enter email address here"
+            fullWidth
             value={formData.email}
             onChange={handleChange}
             required
-            className="input-field"
+            margin="normal"
+            InputProps={{
+              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+            }}
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="password">Password</label>
-          <input
+          <TextField
+            label="Username"
+            name="username"
+            placeholder="Enter username here"
+            fullWidth
+            value={formData.username}
+            onChange={handleChange}
+            required
+            margin="normal"
+            InputProps={{
+              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+            }}
+          />
+          <TextField
+            label="Password"
             type="password"
-            id="password"
             name="password"
-            placeholder="Enter your password here"
+            placeholder="Enter password here"
+            fullWidth
             value={formData.password}
             onChange={handleChange}
             required
-            className="input-field"
+            margin="normal"
+            InputProps={{
+              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+            }}
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="confirmedPassword"> Confirm Password</label>
-          <input
+          <TextField
+            label="Confirm Password"
             type="password"
-            id="confirmedPassword"
             name="confirmedPassword"
-            placeholder="Enter your password here"
+            placeholder="Enter password again"
+            fullWidth
             value={formData.confirmedPassword}
             onChange={handleChange}
             required
-            className="input-field"
+            margin="normal"
+            InputProps={{
+              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+            }}
           />
-        </div>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <div className="submit-group">
-          <button type="submit" className="submit-button">Register</button>
-        </div>
-        <p className="link"> Already have an account? <Link to="/login">Login here</Link></p>
-      </form>
-    </div>
+          {error && (
+            <Typography color="error" style={{ marginBottom: '16px' }}>
+              {error}
+            </Typography>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            className="submit-button"
+            sx={{ marginTop: 2 }}
+          >
+            Register
+          </Button>
+        </Box>
+        <Typography className="link" style={{ marginTop: '20px' }}>
+          Already have an account?{' '}
+          <MuiLink component={Link} to="/login" underline="hover" color="#3B3B4F">
+            Login here
+          </MuiLink>
+        </Typography>
+      </Box>
+    </Box>
   );
 }

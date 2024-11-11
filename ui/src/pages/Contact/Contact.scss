@@ -1,18 +1,44 @@
 .contact {
-    height: calc(100vh - 96px);
-    &__title {
-      padding: 18px 137px;
-      color: #413C58;
-      font-family: Lato;
-      font-size: 40px;
-      font-weight: 700;
-    }
-    &__content {
-      padding-left: 162px;
-      padding-right: 162px;
-      color: #413C58;
-      font-family: Lato;
-      font-size: 20px;
-      font-weight: 700;
+  height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5fb;
+  padding: 24px;
+
+  &__title {
+    color: #413C58;
+    font-family: "Lato", sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 32px;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+    background-color: #A3C4BC;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &__input,
+  &__textarea {
+    background-color: #ffffff;
+    border-radius: 8px;
+  }
+
+  &__button {
+    background-color: #413C58;
+    color: #fff;
+    font-weight: 700;
+    &:hover {
+      background-color: #2e2b42;
     }
   }
+}

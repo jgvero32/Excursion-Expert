@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import "./Login.scss";
+import { Box, Button, TextField, Typography, CircularProgress, Link as MuiLink } from '@mui/material';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/authContext';
+import "./Login.scss";
 
 type LocationState = { redirectedFrom: string };
 
@@ -35,37 +36,55 @@ export function Login() {
   }
 
   return (
-    <div className="login-container">
-      <h1 className="login-title">Log in</h1>
-      <form className="login-form" onSubmit={handleSubmit}> 
-        <div className="input-group">
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
+    <div className='login'>
+      <Box className="login-container">
+        <Typography variant="h4" className="login-title">
+          Log in
+        </Typography>
+        <Box component="form" className="login-form" onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
             name="username"
             placeholder="Enter your username here"
+            fullWidth
             required
-            className="input-field"
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="password">Password</label>
-          <input
+          <TextField
+            label="Password"
             type="password"
-            id="password"
             name="password"
             placeholder="Enter your password here"
+            fullWidth
             required
-            className="input-field"
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
           />
-        </div>
-        {authError && <div style={{ color: "red" }}>{authError}</div>}
-        <div className="submit-group">
-          <button type="submit" disabled={isLoading} className="submit-button">{isLoading ? "Logging in..." : "Login"}</button>
-        </div>
-        <p className="link"> Don't have an account? <Link to="/register">Register here</Link></p>
-      </form>
+          {authError && (
+            <Typography color="error" style={{ marginBottom: '10px' }}>
+              {authError}
+            </Typography>
+          )}
+          <Box className="submit-group" textAlign="center">
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              className="submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? <CircularProgress size={24} color="inherit" /> : "Log In"}
+            </Button>
+          </Box>
+          <Typography className="link" style={{ marginTop: '15px' }}>
+            Don't have an account?{' '}
+            <MuiLink component={Link} to="/register" underline="hover">
+              Register here
+            </MuiLink>
+          </Typography>
+        </Box>
+      </Box>
     </div>
   );
 }
