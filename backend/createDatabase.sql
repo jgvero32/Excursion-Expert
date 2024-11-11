@@ -12,10 +12,18 @@
 -- drop table landmarks;
 -- drop table landmark_type;
 -- drop table filters;
+DO $$
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+	  CREATE TYPE user_role AS ENUM ('user', 'admin');
+	END IF;
+END $$;
+
 CREATE TABLE if not exists users(
 username VARCHAR(50) PRIMARY KEY,
 email VARCHAR(100) NOT NULL,
-password VARCHAR(100) NOT NULL
+password VARCHAR(100) NOT NULL,
+role user_role DEFAULT 'user'
 );
 
 CREATE TABLE if not exists itineraries(
