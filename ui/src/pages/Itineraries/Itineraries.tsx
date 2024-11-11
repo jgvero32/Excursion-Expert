@@ -6,14 +6,14 @@ export function Itineraries() {
 
   return (
     <Container>
-      <Box sx={{ mt: 4 }}>
+      {/* <Box sx={{ mt: 4 }}> */}
         <Typography variant="h4" component="h1" gutterBottom>
           Itineraries
         </Typography>
         <Typography variant="h6" gutterBottom>
           Hello, {currentUser?.username}
         </Typography>
-      </Box>
+      {/* </Box> */}
     </Container>
   );
 }

@@ -1,6 +1,6 @@
 import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/authContext"; // Adjust the import path as needed
+import { useAuth } from "../auth/authContext";
 import { AccountCircleOutlined } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -106,57 +106,59 @@ export function NavBar() {
     ));
   };
 
+  const filteredStaticButtons = authenticated
+    ? staticButtons.filter((button) => button.label !== "Home")
+    : staticButtons;
+
   return (
     <div className="navBar">
-      <Link to={"/home"} style={{ textDecoration: "none" }}>
+      <Link to={"/home"} style={{ textDecoration: "none", display: "flex", alignItems: "center", marginLeft: "10px" }}>
+        <img src="/favicon.ico" alt="favicon" style={{ marginRight: "8px", width: "50px", height: "50px" }} />
         <Typography className="navBar__text">Excursion Expert</Typography>
       </Link>
       <div className="navBar__right">
-      <span>
-        {authenticated && renderButtons(postLoginButtons)}
-        {renderButtons(staticButtons)}
-        {!authenticated && renderButtons(preLoginButtons)}
-        {authenticated && (
-          <>
-            <IconButton onClick={handleMenuOpen}>
-              <AccountCircleOutlined
-                sx={{
-                  color: "#4B644A",
-                  height: "43px",
-                  width: "43px",
+        <span>
+          {authenticated && renderButtons(postLoginButtons)}
+          {renderButtons(filteredStaticButtons)}
+          {!authenticated && renderButtons(preLoginButtons)}
+          {authenticated && (
+            <>
+              <IconButton onClick={handleMenuOpen}>
+                <AccountCircleOutlined
+                  sx={{
+                    color: "#4B644A",
+                    height: "43px",
+                    width: "43px",
+                  }}
+                />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
-              />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-            >
-              <MenuItem disabled>
-                {currentUser?.username}
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleMenuClose();
-                  navigate("/profile");
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
                 }}
               >
-                Profile
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
-          </>
-        )}
-
-      </span>
+                <MenuItem disabled>{currentUser?.username}</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/profile");
+                  }}
+                >
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          )}
+        </span>
       </div>
     </div>
   );

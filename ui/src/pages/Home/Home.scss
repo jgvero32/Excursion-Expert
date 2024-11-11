@@ -28,9 +28,12 @@ html, body {
       box-sizing: border-box;
       border-radius: 50px;
     }
-
     .welcome-text {
-        color: #4B644A; // White fill
+      color: #4B644A;
+      font-family: Kalam;
+      font-size: 50px;
+      font-weight: 700;
+      padding-left: 40px;
     }
 
     .welcome-inner-box {
@@ -40,19 +43,19 @@ html, body {
         transform: translate(-50%, -50%);
         width: 70%;
         height: 80%;
-        background-color: white; // White fill
-        border: 5px solid #A3C4BC; // Green border
+        background-color: white;
+        border: 5px solid #A3C4BC;
         box-sizing: border-box;
-        border-radius: 25px; // Adjust the value for the desired roundness
+        border-radius: 25px; 
       }
   
     .buttons {
         position: absolute;
-        top: 50%; // Center vertically
-        left: 50%; // Center horizontally
-        transform: translate(-50%, -50%); // Adjust position to be centered
+        top: 85%; 
+        left: 50%;
+        transform: translate(-50%, -50%);
         display: flex;
-        gap: 10px; // Space between buttons
+        gap: 10px;
     }
   
     .login-button {

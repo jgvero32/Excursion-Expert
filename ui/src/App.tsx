@@ -10,6 +10,7 @@ import { AboutUs } from "./pages/AboutUs/AboutUs";
 import { AuthProvider } from "./auth/authContext";
 import { RequireAuth } from "./auth/RequireAuth";
 import { Profile } from "./pages/Profile/Profile";
+import { Contact } from "./pages/Contact/Contact";
 
 function App() {
   return (
@@ -23,13 +24,13 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="/home" element={<Home />} />
             <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/contact-us" element={<></>} />
+            <Route path="/contact-us" element={<Contact />} />
             <Route
               path="/*"
               element={
-                // <RequireAuth>
+                <RequireAuth>
                   <ProtectedRoutes />
-                // </RequireAuth>
+                </RequireAuth>
               }
             />
           </Routes>

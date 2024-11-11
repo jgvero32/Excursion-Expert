@@ -1,0 +1,18 @@
+.contact {
+    height: calc(100vh - 96px);
+    &__title {
+      padding: 18px 137px;
+      color: #413C58;
+      font-family: Lato;
+      font-size: 40px;
+      font-weight: 700;
+    }
+    &__content {
+      padding-left: 162px;
+      padding-right: 162px;
+      color: #413C58;
+      font-family: Lato;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
