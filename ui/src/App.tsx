@@ -11,6 +11,7 @@ import { AuthProvider } from "./auth/authContext";
 import { RequireAuth } from "./auth/RequireAuth";
 import { Profile } from "./pages/Profile/Profile";
 import { Contact } from "./pages/Contact/Contact";
+import YouSavedItinerary from "./pages/YouSavedItinerary/YouSavedItinerary";
 
 function App() {
   return (

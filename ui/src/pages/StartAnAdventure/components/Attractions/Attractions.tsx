@@ -17,6 +17,11 @@ import {
 import { useState, useEffect, SyntheticEvent } from "react";
 import { mockData } from "../../mockData";
 import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
+import { useAuth } from '../../../../auth/authContext';
+import { RiseLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom";
+
+
 
 interface AttractionProps {
   city: string;
@@ -95,7 +100,7 @@ export interface PlaceResponse {
   status: string;
 }
 
-type StateType = "sights" | "food" | "nightlife" | "shopping" | "finalize";
+type StateType = "sights" | "food" | "nightlife" | "shopping" | "finalize" | "savedItinerary";
 interface FilterState {
   priceRange: number[];
   minRating: number;
@@ -136,7 +141,11 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     sortBy: "relevance",
   });
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const { saveItinerary, currentUser } = useAuth();
+  const [isItinerarySaved, setIsItinerarySaved] = useState(true);
 
+  const navigate = useNavigate();
   // Load initial data
   useEffect(() => {
     setData(mockData);
@@ -150,6 +159,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       nightlife: "shopping",
       shopping: "finalize",
       finalize: "finalize",
+      savedItinerary: "savedItinerary",
     };
     setCurrentState(stateTransitions[currentState]);
   };
@@ -165,8 +175,38 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     });
   };
 
+  const handleSaveItinerary =  async () => {
+    // Save itinerary to backend
+    setIsLoading(true);
+
+    const formatedItinerary = {
+      username: currentUser?.username,
+      itineraryName: "intinerary-placeholder-name",
+      places: itinerary.map((place: PlaceResult) => ({
+        name: place.name,
+        rating: `Rating: ${place.rating} (${place.user_ratings_total} reviews)`,
+        types: place.types,
+      })),
+    };
+
+    console.log("Saving itinerary:", formatedItinerary);
+
+    try {
+      await saveItinerary(formatedItinerary);
+    } catch (error) {
+      console.error("Saving itinerary error:", error);
+    } finally {
+      setIsLoading(false);
+      setIsItinerarySaved(true);
+      setCurrentState("savedItinerary");
+    }
+  }
+
   // Get current state title
   const getStateTitle = () => {
+    if (currentState === "savedItinerary") {
+      return "Yay, you saved an itinerary!";
+    }
     return `${
       currentState.charAt(0).toUpperCase() + currentState.slice(1)
     } for ${city}, Illinois`;
@@ -179,7 +219,8 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       food: "Nightlife",
       nightlife: "Shopping",
       shopping: "Finalize",
-      finalize: "",
+      finalize: "Save Itinerary",
+      savedItinerary: "Save Itinerary",
     };
     return nextStates[currentState];
   };
@@ -194,6 +235,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
         shopping: "nightlife",
         sights: "finalize",
         finalize: "shopping",
+        savedItinerary: "finalize",
       };
       setCurrentState(previousStates[currentState]);
     }
@@ -277,6 +319,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       nightlife: "tourist_attraction",
       shopping: "store",
       finalize: "",
+      savedItinerary: "",
     };
     const filterType = typeFilterMap[currentState];
 
@@ -361,7 +404,8 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
       nightlife: "Food",
       shopping: "Nightlife",
       sights: "",
-      finalize: "",
+      finalize: "Shopping",
+      savedItinerary: "Finalize",
     };
     return previousStates[currentState];
   };
@@ -370,21 +414,25 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     <div className="attractions">
       <Stack className="attractions__container" direction="row" spacing={2}>
         <div className="attractions__left-section">
-          <ArrowCircleLeftOutlined
-            className="attractions__arrows"
-            onClick={handleBackNavigation}
-          />
-          <Typography
-            variant="caption"
-            className="attractions__back-text"
-            sx={{
-              display: "block",
-              textAlign: "center",
-              marginTop: 1,
-            }}
-          >
-            {getBackLabel()}
-          </Typography>
+          {currentState !== "savedItinerary" && (
+            <div>
+              <ArrowCircleLeftOutlined
+                className="attractions__arrows"
+                onClick={handleBackNavigation}
+              />
+              <Typography
+                variant="caption"
+                className="attractions__back-text"
+                sx={{
+                  display: "block",
+                  textAlign: "center",
+                  marginTop: 1,
+                }}
+              >
+                {getBackLabel()}
+              </Typography>
+            </div>
+          )}
         </div>
         <div className="attractions__container__content">
           <Stack
@@ -398,7 +446,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 ? "Review Your Itinerary"
                 : getStateTitle()}
             </Typography>
-            {currentState !== "finalize" && (
+            {(currentState !== "finalize" && currentState !== "savedItinerary") && (
               <Button
                 startIcon={<FilterAlt />}
                 onClick={() => setFilterDialogOpen(true)}
@@ -417,6 +465,38 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             )}
           </Stack>
 
+          {currentState === "savedItinerary" && (
+            <div>
+              <img src="/balloons.jpg" alt="Balloons" className="balloons-image" />
+                <Stack direction="row" justifyContent="center" spacing={2} sx={{ mt: 2 }}>
+                <Button
+                  sx={{
+                  width: "152px",
+                  height: "40px",
+                  color: "#FFF",
+                  textTransform: "none",
+                  backgroundColor: "#413C58",
+                  }}
+                  onClick={() => navigate("/itineraries")}
+                >
+                  View Saved Itineraries
+                </Button>
+                <Button
+                  sx={{
+                  width: "152px",
+                  height: "40px",
+                  color: "#FFF",
+                  textTransform: "none",
+                  backgroundColor: "#B279A7",
+                  }}
+                  onClick={onChooseAnother}
+                >
+                  Create Another Itinerary
+                </Button>
+                </Stack>
+            </div>
+          )}
+
           {currentState === "finalize" ? (
             <div>
               <Typography variant="h6" sx={{ mb: 2 }}>
@@ -426,20 +506,22 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 <Card key={item.place_id} sx={{ mb: 2 }}>
                   <CardContent>
                     <Typography variant="h6">{item.name}</Typography>
-                    <Typography color="textSecondary">
-                      {item.vicinity}
+                    <div>
+                      {item.types.map((type) => (
+                        <Typography
+                          key={type}
+                          variant="body2"
+                          color="textSecondary"
+                          component="span"
+                          sx={{ marginRight: 1 }}
+                        >
+                          {type}
+                        </Typography>
+                      ))}
+                    </div>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {`Rating: ${item.rating} (${item.user_ratings_total} reviews)`}
                     </Typography>
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      alignItems="center"
-                      sx={{ mt: 1 }}
-                    >
-                      <Rating value={item.rating} readOnly precision={0.5} />
-                      <Typography variant="body2">
-                        ({item.user_ratings_total} reviews)
-                      </Typography>
-                    </Stack>
                     <IconButton
                       onClick={() => {
                         setItinerary((prev) =>
@@ -464,12 +546,16 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   },
                 }}
                 onClick={() => {
-                  // Handle saving itinerary to database
-                  console.log("Save itinerary:", itinerary);
+                  handleSaveItinerary();
                 }}
               >
                 Save Itinerary
               </Button>
+              {isLoading && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                  <RiseLoader color="#413C58" />
+                </div>
+              )}
             </div>
           ) : (
             <AttractionCards
@@ -483,21 +569,31 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
           )}
         </div>
         <div className="attractions__right-section">
-          <ArrowCircleRightOutlined
-            className="attractions__arrows"
-            onClick={handleNextState}
-          />
-          <Typography
-            variant="caption"
-            className="attractions__next-text"
-            sx={{
-              display: "block",
-              textAlign: "center",
-              marginTop: 1,
-            }}
-          >
-            {getNextStateLabel()}
-          </Typography>
+        {currentState !== "savedItinerary" && (
+          <div>
+            <ArrowCircleRightOutlined
+              className="attractions__arrows"
+              onClick={() => {
+                if (currentState === "finalize") {
+                  handleSaveItinerary();
+                } else {
+                  handleNextState();
+                }
+              }}
+            />
+            <Typography
+              variant="caption"
+              className="attractions__next-text"
+              sx={{
+                display: "block",
+                textAlign: "center",
+                marginTop: 1,
+              }}
+            >
+              {getNextStateLabel()}
+            </Typography>
+          </div>
+        )}
         </div>
       </Stack>
       <FiltersDialog

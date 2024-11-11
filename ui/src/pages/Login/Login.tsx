@@ -31,7 +31,7 @@ export function Login() {
   };
 
   if (authenticated) {
-    return <Navigate to={locationState?.redirectedFrom || "/home"} />;
+    return <Navigate to={locationState?.redirectedFrom || "/start-an-adventure"} />;
   }
 
   return (

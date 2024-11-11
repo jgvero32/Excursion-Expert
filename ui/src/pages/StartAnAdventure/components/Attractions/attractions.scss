@@ -25,5 +25,14 @@
       height: inherit;
       width: 60%;
     }
+
+  }
+  .balloons-image {
+    width: 50%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
   }
 }

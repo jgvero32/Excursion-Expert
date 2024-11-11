@@ -9,9 +9,9 @@ export function StartAnAdventure() {
   const { city } = useParams<{ city: string }>();
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
-  const handleSubmit = (selectedCity: string) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>, selectedCity: string) => {
+    event.preventDefault();
     navigate(`/start-an-adventure/${selectedCity}`);
-    // setCurrent;
     setIsSubmitted(true);
   };
 

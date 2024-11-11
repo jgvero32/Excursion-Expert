@@ -24,6 +24,7 @@ interface AuthContextValue {
   register: (data: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
   clearError: () => void;
+  saveItinerary: (itinerary: any) => Promise<void>;
 }
 
 interface AuthState {
@@ -239,6 +240,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const saveItinerary = async (itinerary: any): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/itineraries/save-itinerary`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: JSON.stringify(itinerary),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Itinerary saved:', data);
+    } else {
+      console.error('Error saving itinerary:', response.statusText);
+    }
+  };
+
   // Check auth status when component mounts
   useEffect(() => {
     checkAuthStatus();
@@ -262,6 +283,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       register,
       refreshUser: checkAuthStatus,
       clearError,
+      saveItinerary,
       ...authData,
     }),
     [authData, checkAuthStatus]

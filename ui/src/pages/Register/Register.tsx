@@ -53,7 +53,7 @@ export function Register() {
         password: formData.password,
         username: formData.username
       });
-      navigate("/home"); // or wherever you want to redirect after registration
+      navigate("/start-an-adventure"); // or wherever you want to redirect after registration
     } catch (err: any) {
       setError(err.message || "Failed to register");
     }
