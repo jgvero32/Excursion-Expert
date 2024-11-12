@@ -49,22 +49,22 @@ export class ItineraryService {
       } catch (error) {
           console.error("Error inserting landmark:", error);
       }
-      for (const type of p.types){
-        const currtype = [
+      for (const tag of p.types){
+        const currtag = [
           p.name,
-          type
+          tag
         ] 
         try{
-          const ret_type = await pool.query("INSERT INTO landmark_type VALUES ($1, $2) RETURNING *", currtype); //adds each landmark type per landmark
+          const ret_tag = await pool.query("INSERT INTO tags VALUES ($1, $2) RETURNING *", currtag); //adds each landmark tag per landmark
         } catch (error) {
-            console.error("Error inserting type:", error);
+            console.error("Error inserting tag:", error);
         }
       }
     }
 
     // ** query to get all itineraries **
     // try{
-    //   const [user_iters] = await pool.query("with full_lms as (select landmarks.*,	landmark_type.ltype from landmarks left join landmark_type on landmarks.lm_name = landmark_type.lm_name) select i.*,  full_lms.lm_name, full_lms.maplink,	full_lms.rating,	full_lms.ltypefrom itineraries i left join full_lms on i.iter_id = full_lms.iter_id where username = $", itinerary.username); //finds all itinerary info for a given user
+    //   const [user_iters] = await pool.query("with full_lms as (select landmarks.*,	tag.lm_tag from landmarks left join tags on landmarks.lm_name = tags.lm_name) select i.*,  full_lms.lm_name, full_lms.maplink,	full_lms.rating,	full_lms.tags from itineraries i left join full_lms on i.iter_id = full_lms.iter_id where username = $", itinerary.username); //finds all itinerary info for a given user
     // } catch (error) {
     //     console.error("Error inserting type:", error);
     // }
