@@ -335,6 +335,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     setIsLoading(true);
     const formatedItinerary = {
       username: currentUser?.username,
+      city: city +', Illinois',
       itineraryName: "intinerary-placeholder-name",
       places: itinerary.map((place: Place) => ({
         name: place.displayName?.text,
@@ -522,6 +523,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                     itinerary.find((item) => item.id === itemId)!
                   )
                 }
+                showButtons={true}
               />
             )
           )}

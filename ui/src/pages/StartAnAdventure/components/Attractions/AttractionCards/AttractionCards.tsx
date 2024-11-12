@@ -17,13 +17,15 @@ interface AttractionCardsProps {
   favorites: string[];
   onFavoriteClick: (itemId: string) => void;
   onAddToItinerary: (item: Place) => void;
+  showButtons?: boolean;
 }
 
 export const AttractionCards: React.FC<AttractionCardsProps> = ({
   data,
   favorites,
   onFavoriteClick,
-  onAddToItinerary
+  onAddToItinerary,
+  showButtons
 }) => {
   const formatTypes = (types: string[]): string[] => {
     return types.map(type => 
@@ -76,30 +78,34 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 )}
               </CardContent>
             </Card>
-            <Button
-              sx={{
-                width: "152px",
-                height: "40px",
-                color: "#FFF",
-                margin: "10px",
-                textTransform: "none",
-                backgroundColor: "#413C58",
-              }}
-            >
-              Learn More
-            </Button>
-            <Button
-              sx={{
-                width: "152px",
-                height: "40px",
-                color: "#FFF",
-                textTransform: "none",
-                backgroundColor: "#B279A7",
-              }}
-              onClick={() => onAddToItinerary(result)}
-            >
-              Add to itinerary
-            </Button>
+            {showButtons && (
+              <>
+                <Button
+                  sx={{
+                    width: "152px",
+                    height: "40px",
+                    color: "#FFF",
+                    margin: "10px",
+                    textTransform: "none",
+                    backgroundColor: "#413C58",
+                  }}
+                >
+                  Learn More
+                </Button>
+                <Button
+                  sx={{
+                    width: "152px",
+                    height: "40px",
+                    color: "#FFF",
+                    textTransform: "none",
+                    backgroundColor: "#B279A7",
+                  }}
+                  onClick={() => onAddToItinerary(result)}
+                >
+                  Add to itinerary
+                </Button>
+              </>
+            )}
           </Box>
         );
       })}

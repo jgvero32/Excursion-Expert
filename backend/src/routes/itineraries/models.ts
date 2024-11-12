@@ -7,5 +7,6 @@ export interface Place {
   export interface UpdateItineraryRequest {
     username: string;
     itineraryName: string;
+    city: string;
     places: Place[];
   }

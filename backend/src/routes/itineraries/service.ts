@@ -5,7 +5,8 @@ export class ItineraryService {
   static async saveItinerary(requestBody: UpdateItineraryRequest): Promise<string> {
     console.log('saveItinerary', requestBody);
     const itinerary = {
-    username: requestBody.username,
+      username: requestBody.username,
+      city: requestBody.city,
       itineraryName: requestBody.itineraryName,
       places: requestBody.places,
     };
