@@ -20,6 +20,7 @@ import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
 import { useAuth } from "../../../../auth/authContext";
 import { RiseLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material";
 
 interface AttractionProps {
   city: string;
@@ -154,8 +155,8 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [foodData, setFoodData] = useState<Place[]>([]);
   const [nightlifeData, setNightlifeData] = useState<Place[]>([]);
   const [shoppingData, setShoppingData] = useState<Place[]>([]);
+  const [itineraryName, setItineraryName] = useState("");
 
-  console.log(sightsData);
   const navigate = useNavigate();
 
   const typeMapping: { [key: string]: string | null } = {
@@ -336,7 +337,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     const formatedItinerary = {
       username: currentUser?.username,
       city: city +', Illinois',
-      itineraryName: "intinerary-placeholder-name",
+      itineraryName: itineraryName,
       places: itinerary.map((place: Place) => ({
         name: place.displayName?.text,
         rating: `Rating: ${place.rating} (${place.userRatingCount} reviews)`,
@@ -453,38 +454,46 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Selected Locations ({itinerary.length})
               </Typography>
+              <TextField
+                label="Itinerary Name"
+                variant="outlined"
+                fullWidth
+                value={itineraryName}
+                onChange={(e) => setItineraryName(e.target.value)}
+                sx={{ mb: 2 }}
+              />
               {itinerary.map((item) => (
-                <Card key={item.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6">
-                      {item.displayName?.text}
+                <Card key={item.id} sx={{ mb: 2, position: 'relative' }}>
+                <CardContent>
+                  <Typography variant="h6">
+                    {item.displayName?.text}
+                  </Typography>
+                  <Typography color="textSecondary">
+                    {item.formattedAddress}
+                  </Typography>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mt: 1 }}
+                  >
+                    <Rating value={item.rating} readOnly precision={0.5} />
+                    <Typography variant="body2">
+                      ({item.userRatingCount} reviews)
                     </Typography>
-                    <Typography color="textSecondary">
-                      {item.formattedAddress}
-                    </Typography>
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      alignItems="center"
-                      sx={{ mt: 1 }}
-                    >
-                      <Rating value={item.rating} readOnly precision={0.5} />
-                      <Typography variant="body2">
-                        ({item.userRatingCount} reviews)
-                      </Typography>
-                    </Stack>
-                    <IconButton
-                      onClick={() =>
-                        setItinerary((prev) =>
-                          prev.filter((i) => i.id !== item.id)
-                        )
-                      }
-                      sx={{ position: "absolute", top: 8, right: 8 }}
-                    >
-                      <DeleteOutline />
-                    </IconButton>
-                  </CardContent>
-                </Card>
+                  </Stack>
+                  <IconButton
+                    onClick={() =>
+                      setItinerary((prev) =>
+                        prev.filter((i) => i.id !== item.id)
+                      )
+                    }
+                    sx={{ position: 'absolute', top: 8, right: 8 }}
+                  >
+                    <DeleteOutline />
+                  </IconButton>
+                </CardContent>
+              </Card>
               ))}
               <Button
                 variant="contained"
