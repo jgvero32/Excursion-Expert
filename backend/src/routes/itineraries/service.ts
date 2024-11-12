@@ -61,6 +61,15 @@ export class ItineraryService {
         }
       }
     }
+
+    // ** query to get all itineraries **
+    // try{
+    //   const [user_iters] = await pool.query("with full_lms as (select landmarks.*,	landmark_type.ltype from landmarks left join landmark_type on landmarks.lm_name = landmark_type.lm_name) select i.*,  full_lms.lm_name, full_lms.maplink,	full_lms.rating,	full_lms.ltypefrom itineraries i left join full_lms on i.iter_id = full_lms.iter_id where username = $", itinerary.username); //finds all itinerary info for a given user
+    // } catch (error) {
+    //     console.error("Error inserting type:", error);
+    // }
+
+
     return itineraryId;
   }
 }
