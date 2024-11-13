@@ -29,7 +29,6 @@ export function Itineraries() {
     const fetchItineraries = async () => {
       try {
         const userItineraries = await getItineraries(currentUser?.username ?? "");
-        // console.log("userItineraries", userItineraries);
         setItineraries(userItineraries);
       } catch (error) {
         console.error("Error fetching itineraries:", error);
@@ -86,26 +85,26 @@ export function Itineraries() {
         <>
         {itineraries.length !== 0 ? (
         <List className="cards">
-          {itineraries.map((itinerary) => (
-            <Card key={itinerary.id} className="card" onClick={() => handleItineraryClick(itinerary)} sx={{ mb: 2 }}>
-              <CardContent className="card__content">
-                <span className="card__content__container">
-                  <Typography className="card__content__container__text">
+        {itineraries.map((itinerary) => (
+          <Card key={itinerary.id} className="card" onClick={() => handleItineraryClick(itinerary)} sx={{ mb: 2 }}>
+            <CardContent className="card__content">
+              <span className="card__content__container">
+                <Typography className="card__content__container__text">
                   {itinerary.itineraryName}
-                  </Typography>
-                  <DeleteOutline className="delete-icon"/>
-                </span>
-                <Stack direction="row" spacing={1}>
-                  <Chip 
-                    key={itinerary.id} 
-                    label={itinerary.city}
-                    size="small"
-                  />
+                </Typography>
+                <DeleteOutline className="delete-icon"/>
+              </span>
+              <Stack direction="row" spacing={1}>
+                <Chip 
+                  key={`${itinerary.id}`}
+                  label={itinerary.city}
+                  size="small"
+                />
               </Stack>
-              </CardContent>
-            </Card>
-          ))}
-        </List>
+            </CardContent>
+          </Card>
+        ))}
+      </List>
         ) : (
             <div className="no-itineraries">
             <Typography className="itineraries-subtitle" variant="h6" gutterBottom>

@@ -14,15 +14,6 @@ export class ItineraryService {
     };
 
     console.log(itinerary);
-    //TODO: @danny put your query here: save itinerary to database
-    // go to models.ts to see what places contains
-    // this below is in models.ts
-    // export interface Place {
-    //   name: string;
-    //   rating: string;
-    //   types: string[];
-    // }
-
     const itineraryId = uuidv4(); // this is how to generate a unique uuid id
     const iter_add = [
       itineraryId,
@@ -129,7 +120,8 @@ export class ItineraryService {
         username: requestBody.username,
         itineraryName: iterName,
         city: rows.find((row: any) => row.iter_name === iterName).loc,
-        places: Object.values(itineraryMap[iterName])
+        places: Object.values(itineraryMap[iterName]),
+        id: rows.find((row: any) => row.iter_name === iterName).iter_id
       }));
   
       console.log(itineraries);

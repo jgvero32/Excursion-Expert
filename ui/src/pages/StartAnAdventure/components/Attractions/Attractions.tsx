@@ -181,6 +181,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [nightlifeData, setNightlifeData] = useState<Place[]>([]);
   const [shoppingData, setShoppingData] = useState<Place[]>([]);
   const [itineraryName, setItineraryName] = useState("");
+  const [noItineraryError, setNoItineraryError] = useState("");
 
   const navigate = useNavigate();
 
@@ -366,6 +367,11 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
   const handleSaveItinerary = async () => {
     // Save itinerary to backend
+    if (itinerary.length === 0) {
+      setNoItineraryError("Please add at least one location to your itinerary.");
+      return;
+    }
+
     setIsLoading(true);
     const formatedItinerary = {
       username: currentUser?.username,
@@ -483,85 +489,108 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             </div>
           )}
           {currentState === "finalize" ? (
-            <>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <div style={{ width: '60%', left: '173px' }}>
-                  Selected Locations ({itinerary.length})
-                </div>
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
-              <CssTextField label="Enter itinerary name here" id="custom-css-outlined-input" sx={{ width: '60%', left: '173px',
-                  }}/>
-              </Box>
+          <>
+            {itinerary.length !== 0 ? (
+              <>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <div style={{ width: '60%', left: '173px' }}>
+                    Selected Locations ({itinerary.length})
+                  </div>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
+                  <CssTextField 
+                    label="Enter itinerary name here" 
+                    id="custom-css-outlined-input" 
+                    sx={{ width: '60%', left: '173px' }}
+                    value={itineraryName}
+                    onChange={(e) => setItineraryName(e.target.value)}
+                  />
+                </Box>
                 <AttractionCards
-                data={itinerary}
-                onAddToItinerary={handleAddToItinerary}
-                favorites={[]}
-                onFavoriteClick={(itemId: string) =>
-                  handleAddToItinerary(
-                    itinerary.find((item) => item.id === itemId)!
-                  )
-                }
-                removeFromItinerary={(item: Place) => 
-                  setItinerary((prev) => prev.filter((i) => i.id !== item.id))
-                }
-                showButtons={false}
-                showDelete={true}
-              />
+                  data={itinerary}
+                  onAddToItinerary={handleAddToItinerary}
+                  favorites={[]}
+                  onFavoriteClick={(itemId: string) =>
+                    handleAddToItinerary(
+                      itinerary.find((item) => item.id === itemId)!
+                    )
+                  }
+                  removeFromItinerary={(item: Place) => 
+                    setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+                  }
+                  showButtons={false}
+                  showDelete={true}
+                />
+                {isLoading && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "20px",
+                    }}
+                  >
+                    <RiseLoader color="#413C58" />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
 
-              
-              {/* </Box> */}
-              {isLoading && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "20px",
-                  }}
+                <Typography
+                  variant="h6"
+                  sx={{ display: "block", textAlign: "center", marginTop: 1 }}
                 >
-                  <RiseLoader color="#413C58" />
-                </div>
-              )}
-            </>
-          ) : (
-            currentState !== "savedItinerary" && (
-              <AttractionCards
-                data={data}
-                onAddToItinerary={handleAddToItinerary}
-                favorites={[]}
-                onFavoriteClick={(itemId: string) =>
-                  handleAddToItinerary(
-                    itinerary.find((item) => item.id === itemId)!
-                  )
-                }
-                removeFromItinerary={(item: Place) => 
-                  setItinerary((prev) => prev.filter((i) => i.id !== item.id))
-                }
-                showButtons={true}
-              />
-            )
-          )}
+                  {"Please add at least one place to your itinerary."}
+                </Typography>
+              </>
+            )}
+          </>
+        ) : (
+          currentState !== "savedItinerary" && (
+            <AttractionCards
+              data={data}
+              onAddToItinerary={handleAddToItinerary}
+              favorites={[]}
+              onFavoriteClick={(itemId: string) =>
+                handleAddToItinerary(
+                  itinerary.find((item) => item.id === itemId)!
+                )
+              }
+              removeFromItinerary={(item: Place) => 
+                setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+              }
+              showButtons={true}
+            />
+          )
+        )}
         </div>
         <div className="attractions__right-section">
           {currentState !== "savedItinerary" && (
             <div>
-              <ArrowCircleRightOutlined
-                className="attractions__arrows"
-                onClick={() => {
-                  if (currentState === "finalize") {
-                    handleSaveItinerary();
-                  } else {
-                    handleNextState();
-                  }
-                }}
-              />
-              <Typography
-                variant="caption"
-                className="attractions__next-text"
-                sx={{ display: "block", textAlign: "center", marginTop: 1 }}
-              >
-                {getNextStateLabel()}
-              </Typography>
+              {itinerary.length === 0 && currentState === "finalize" ? (
+                <>
+                </>
+              ) : (
+                <>
+                  <ArrowCircleRightOutlined
+                    className="attractions__arrows"
+                    onClick={() => {
+                      if (currentState === "finalize") {
+                        handleSaveItinerary();
+                      } else {
+                        handleNextState();
+                      }
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    className="attractions__next-text"
+                    sx={{ display: "block", textAlign: "center", marginTop: 1 }}
+                  >
+                    {getNextStateLabel()}
+                  </Typography>
+                </>
+              )}
             </div>
           )}
         </div>
