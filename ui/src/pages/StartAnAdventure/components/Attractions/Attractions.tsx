@@ -6,7 +6,12 @@ import {
   Rating,
   Stack,
   Typography,
+  Box,
+  Checkbox,
+  Chip,
 } from "@mui/material";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import { styled } from '@mui/material/styles';
 import { AttractionCards } from "./AttractionCards/AttractionCards";
 import {
   ArrowCircleLeftOutlined,
@@ -122,6 +127,26 @@ export interface FilterState {
   sortBy: "relevance" | "rating" | "reviews" | "distance";
 }
 
+const CssTextField = styled(TextField)({
+  '& label.Mui-focused': {
+    color: '#413C58',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: '#413C58',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#413C58',
+    },
+    '&:hover fieldset': {
+      borderColor: '#B279A7',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#B279A7',
+    },
+  },
+});
+
 export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   // State management
   const [isLoading, setIsLoading] = useState(false);
@@ -221,6 +246,14 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
       return isWithinPriceRange && meetsRating && isOpenNow && meetsAmenities;
     });
+  };
+
+  const formatTypes = (types: string[]): string[] => {
+    return types.map(type => 
+      type.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    );
   };
 
   // Data fetching and filtering based on state
@@ -327,7 +360,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
           nightlife: "Food",
           shopping: "Nightlife",
           sights: "",
-          finalize: "",
+          finalize: "Shopping",
           savedItinerary: "",
         }[currentState];
 
@@ -386,7 +419,8 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             <Typography className="attractions__text">
               {currentState === "finalize"
                 ? "Review Your Itinerary"
-                : getStateTitle()}
+                : getStateTitle()
+              }
             </Typography>
             {currentState !== "finalize" &&
               currentState !== "savedItinerary" && (
@@ -448,67 +482,35 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               </Stack>
             </div>
           )}
-
           {currentState === "finalize" ? (
-            <div>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Selected Locations ({itinerary.length})
-              </Typography>
-              <TextField
-                label="Itinerary Name"
-                variant="outlined"
-                fullWidth
-                value={itineraryName}
-                onChange={(e) => setItineraryName(e.target.value)}
-                sx={{ mb: 2 }}
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <div style={{ width: '60%', left: '173px' }}>
+                  Selected Locations ({itinerary.length})
+                </div>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
+              <CssTextField label="Enter itinerary name here" id="custom-css-outlined-input" sx={{ width: '60%', left: '173px',
+                  }}/>
+              </Box>
+                <AttractionCards
+                data={itinerary}
+                onAddToItinerary={handleAddToItinerary}
+                favorites={[]}
+                onFavoriteClick={(itemId: string) =>
+                  handleAddToItinerary(
+                    itinerary.find((item) => item.id === itemId)!
+                  )
+                }
+                removeFromItinerary={(item: Place) => 
+                  setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+                }
+                showButtons={false}
+                showDelete={true}
               />
-              {itinerary.map((item) => (
-                <Card key={item.id} sx={{ mb: 2, position: 'relative' }}>
-                <CardContent>
-                  <Typography variant="h6">
-                    {item.displayName?.text}
-                  </Typography>
-                  <Typography color="textSecondary">
-                    {item.formattedAddress}
-                  </Typography>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mt: 1 }}
-                  >
-                    <Rating value={item.rating} readOnly precision={0.5} />
-                    <Typography variant="body2">
-                      ({item.userRatingCount} reviews)
-                    </Typography>
-                  </Stack>
-                  <IconButton
-                    onClick={() =>
-                      setItinerary((prev) =>
-                        prev.filter((i) => i.id !== item.id)
-                      )
-                    }
-                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                  >
-                    <DeleteOutline />
-                  </IconButton>
-                </CardContent>
-              </Card>
-              ))}
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  backgroundColor: "#413C58",
-                  "&:hover": {
-                    backgroundColor: "#302c41",
-                  },
-                }}
-                onClick={() => handleSaveItinerary()}
-              >
-                Save Itinerary
-              </Button>
+
+              
+              {/* </Box> */}
               {isLoading && (
                 <div
                   style={{
@@ -520,7 +522,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   <RiseLoader color="#413C58" />
                 </div>
               )}
-            </div>
+            </>
           ) : (
             currentState !== "savedItinerary" && (
               <AttractionCards
@@ -531,6 +533,9 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   handleAddToItinerary(
                     itinerary.find((item) => item.id === itemId)!
                   )
+                }
+                removeFromItinerary={(item: Place) => 
+                  setItinerary((prev) => prev.filter((i) => i.id !== item.id))
                 }
                 showButtons={true}
               />

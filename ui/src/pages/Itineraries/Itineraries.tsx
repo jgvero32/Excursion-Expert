@@ -51,6 +51,10 @@ export function Itineraries() {
     setSelectedItinerary(itinerary);
   };
 
+  const handleRemoveFromItinerary = (item: Place) => {
+    //TODO: write remove from itinerary functionality
+  };
+
   return (
     <Container>
       <Typography className="itineraries-title">Your Itineraries!</Typography>
@@ -68,7 +72,11 @@ export function Itineraries() {
             favorites={favorites}
             onFavoriteClick={handleFavoriteClick}
             onAddToItinerary={handleAddToItinerary}
+            removeFromItinerary={(item: Place) => 
+              handleRemoveFromItinerary(item)
+            }
             showButtons={false}
+            showDelete={true}
           />
           <div className="button-container" >
             <Button className="button" onClick={() => setSelectedItinerary(null)}>Back to Itineraries</Button>

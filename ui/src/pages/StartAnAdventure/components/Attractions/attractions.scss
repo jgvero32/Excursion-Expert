@@ -36,3 +36,33 @@
     margin: 0 auto;
   }
 }
+
+.itinerary-items {
+  overflow: "scroll"
+}
+
+.card {
+  width: -webkit-fill-available;
+  max-width: 500px;
+  height: fit-content;
+  padding: 10px;
+  background-color: #A3C4BC;
+  border-radius: 8px;
+  &__content {
+    border-radius: 8px;
+    background-color: #FFF;
+    &__container{
+      display: flex;
+      justify-content: space-between;
+      &__text {
+        color: #413C58;
+        font-family: Lato;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      &__fav {
+        color: red;
+      }
+    }
+  }
+}
