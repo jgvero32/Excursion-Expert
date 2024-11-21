@@ -1,24 +1,11 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Rating,
-  Stack,
-  Typography,
-  Box,
-  Checkbox,
-  Chip,
-} from "@mui/material";
-import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import { Button, Stack, Typography, Box } from "@mui/material";
+
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
 import { styled } from '@mui/material/styles';
 import { AttractionCards } from "./AttractionCards/AttractionCards";
-import {
-  ArrowCircleLeftOutlined,
-  ArrowCircleRightOutlined,
-  DeleteOutline,
-  FilterAlt,
-} from "@mui/icons-material";
+import { ArrowCircleLeftOutlined, ArrowCircleRightOutlined, FilterAlt } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { mockData } from "../../mockData";
 import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
@@ -395,13 +382,40 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     }
   };
 
+  const stateMapping: { [key in StateType]: number } = {
+    sights: 0,
+    food: 1,
+    nightlife: 2,
+    shopping: 3,
+    finalize: 4,
+    savedItinerary: 5,
+  };
+
+  const steps = ['Sights', 'Food', 'Nightlife', 'Shopping', 'Review Your Itinerary'];
+
+
   return (
     <div className="attractions">
+      {currentState !== "savedItinerary" && (
+     <div className="attractions__stepper">
+        <Box sx={{ width: '80%' }}>
+          <Stepper activeStep={stateMapping[currentState]} sx={{'.MuiStepIcon-root.Mui-completed': { color: "#B279A7" }, '.MuiStepIcon-root.Mui-active': { color: "#413C58" }, '.MuiStepIcon-root': { color: "#A3C4BC" }}}>
+            {steps.map((label, index) => (
+              <Step key={label}>
+          <StepLabel> {label} </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+      </div>
+      )}
+
       <Stack className="attractions__container" direction="row" spacing={2}>
         <div className="attractions__left-section">
           {currentState !== "savedItinerary" && (
             <div>
               <ArrowCircleLeftOutlined
+              
                 className="attractions__arrows"
                 onClick={handleBackNavigation}
               />

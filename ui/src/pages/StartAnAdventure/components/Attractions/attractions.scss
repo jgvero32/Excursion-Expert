@@ -1,6 +1,13 @@
 .attractions {
   height: 102%;
   width: 100vw;
+
+  &__stepper {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+  }
+
   &__text {
     color: #413C58;
     font-family: Lato;
@@ -34,35 +41,5 @@
     justify-content: center;
     align-items: center;
     margin: 0 auto;
-  }
-}
-
-.itinerary-items {
-  overflow: "scroll"
-}
-
-.card {
-  width: -webkit-fill-available;
-  max-width: 500px;
-  height: fit-content;
-  padding: 10px;
-  background-color: #A3C4BC;
-  border-radius: 8px;
-  &__content {
-    border-radius: 8px;
-    background-color: #FFF;
-    &__container{
-      display: flex;
-      justify-content: space-between;
-      &__text {
-        color: #413C58;
-        font-family: Lato;
-        font-size: 20px;
-        font-weight: 700;
-      }
-      &__fav {
-        color: red;
-      }
-    }
   }
 }
