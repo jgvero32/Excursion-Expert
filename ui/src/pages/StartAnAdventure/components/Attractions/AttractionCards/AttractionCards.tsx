@@ -78,10 +78,14 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                   ))}
                 </Stack>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                  <Rating value={result.rating} readOnly precision={0.5} />
-                  {result.rating && (
+                  <Rating value={result.rating || 0} readOnly precision={0.5} />
+                  {result.rating ? (
                   <Typography variant="body2" sx={{ ml: 1 }}>
                     Rating: {result.rating} ({result.userRatingCount} reviews)
+                  </Typography>
+                  ) : (
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    No rating available
                   </Typography>
                   )}
                 </Box>
