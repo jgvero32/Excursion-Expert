@@ -4,9 +4,13 @@ export interface Place {
     types: string[];
   }
   
-  export interface UpdateItineraryRequest {
+  export interface SaveItineraryRequest {
     username: string;
     itineraryName: string;
     city: string;
     places: Place[];
+  }
+
+  export interface GetItinerariesRequest {
+    username: string;
   }

@@ -1,82 +1,134 @@
-import React, { useState } from 'react';
-import { useAuth } from "../../auth/authContext"; // Adjust the path
-import { Typography, Container } from "@mui/material";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from "../../auth/authContext";
+import { Typography, Container, List, Card, CardContent, Chip, Stack, } from "@mui/material";
 import { AttractionCards } from '../StartAnAdventure/components/Attractions/AttractionCards/AttractionCards';
 import { Place } from '../StartAnAdventure/components/Attractions/Attractions';
+import { Button } from '@mui/material';
+import { RiseLoader } from "react-spinners";
+import { DeleteOutline, } from "@mui/icons-material";
+import { useNavigate} from "react-router-dom";
+import "./Itineraries.scss";
 
-const mockData: Place[] = [
-  {
-    id: "1",
-    types: ["tourist_attraction", "point_of_interest", "establishment"],
-    formattedAddress: "20 W 34th St, New York, NY 10118, USA",
-    location: {
-      latitude: 40.748817,
-      longitude: -73.985428,
-    },
-    rating: 4.7,
-    businessStatus: "OPERATIONAL",
-    userRatingCount: 12345,
-    displayName: {
-      text: "Empire State Building",
-      languageCode: "en",
-    },
-    goodForChildren: true,
-    priceRange: {
-      startPrice: {
-        currencyCode: "USD",
-        units: "30",
-      },
-    },
-    priceLevel: "3",
-    restroom: true,
-    accessibilityOptions: {
-      wheelchairAccessibleEntrance: true,
-    },
-    parkingOptions: {
-      freeParkingLot: true,
-    },
-  },
-  // Add more mock places as needed
-];
+export interface Itinerary {
+  id: string;
+  username: string;
+  city: string;
+  itineraryName: string;
+  places: Place[];
+}
 
 export function Itineraries() {
-  const { currentUser } = useAuth();
+  const { getItineraries, currentUser } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [itinerary, setItinerary] = useState<Place[]>([]);
+  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
+  const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchItineraries = async () => {
+      try {
+        const userItineraries = await getItineraries(currentUser?.username ?? "");
+        setItineraries(userItineraries);
+      } catch (error) {
+        console.error("Error fetching itineraries:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItineraries();
+  }, [currentUser]);
 
   const handleFavoriteClick = (itemId: string) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(itemId)
-        ? prevFavorites.filter((id) => id !== itemId)
-        : [...prevFavorites, itemId]
-    );
   };
 
   const handleAddToItinerary = (item: Place) => {
-    setItinerary((prevItinerary) => {
-      const exists = prevItinerary.some((i) => i.id === item.id);
-      if (!exists) {
-        return [...prevItinerary, item];
-      }
-      return prevItinerary;
-    });
   };
+
+  const handleItineraryClick = (itinerary: Itinerary) => {
+    setSelectedItinerary(itinerary);
+  };
+
+  const handleRemoveFromItinerary = (item: Place) => {
+    //TODO: write remove from itinerary functionality
+  };
+  const [itinerary] = useState<Place[]>([]);
 
   return (
     <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Itineraries
-      </Typography>
-      <Typography variant="h6" gutterBottom>
-        Hello, {currentUser?.username}
-      </Typography>
-      <AttractionCards
-        data={mockData}
-        favorites={favorites}
-        onFavoriteClick={handleFavoriteClick}
-        onAddToItinerary={handleAddToItinerary}
-        showButtons={false} // Pass false to hide the buttons
-      />
+      <Typography className="itineraries-title">Your Itineraries!</Typography>
+      {isLoading ? (
+        <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <RiseLoader color="#413C58" />
+        </Container>
+      ) : selectedItinerary ? ( // this is for when an itinerary is selected and we should see all places in that itinerary
+        <div className="places-in-itinerary">
+          <Typography className="itinerary-name" variant="h5" gutterBottom>
+            {selectedItinerary.itineraryName}
+          </Typography>
+          <AttractionCards
+            data={selectedItinerary.places}
+            favorites={favorites}
+            onFavoriteClick={handleFavoriteClick}
+            onAddToItinerary={handleAddToItinerary}
+            removeFromItinerary={(item: Place) => 
+              handleRemoveFromItinerary(item)
+            }
+            showButtons={false}
+            showDelete={true}
+            itinerary={itinerary}
+          />
+          <div className="button-container" >
+            <Button className="button" onClick={() => setSelectedItinerary(null)}>Back to Itineraries</Button>
+          </div>
+        </div>
+      ) : ( // this is for when no itinerary is selected aka we're only seeing itineraries 
+        <>
+        {itineraries.length !== 0 ? (
+        <List className="cards">
+        {itineraries.map((itinerary) => (
+          <Card key={itinerary.id} className="card" onClick={() => handleItineraryClick(itinerary)} sx={{ mb: 2 }}>
+            <CardContent className="card__content">
+              <span className="card__content__container">
+                <Typography className="card__content__container__text">
+                  {itinerary.itineraryName}
+                </Typography>
+                <DeleteOutline className="delete-icon"/>
+              </span>
+              <Stack direction="row" spacing={1}>
+                <Chip 
+                  key={`${itinerary.id}`}
+                  label={itinerary.city}
+                  size="small"
+                />
+              </Stack>
+            </CardContent>
+          </Card>
+        ))}
+      </List>
+        ) : (
+            <div className="no-itineraries">
+            <Typography className="itineraries-subtitle" variant="h6" gutterBottom>
+              No itineraries found:(
+            </Typography>
+            <img 
+              src="/vacation-cat.jpg" 
+              alt="Saved Itinerary" 
+              style={{ width: '100%', maxWidth: '400px', height: 'auto', marginBottom: '20px' }}
+            />
+            <Button 
+              className="button" 
+              variant="contained" 
+              color="primary" 
+              onClick={() => navigate("/start-an-adventure")}
+            >
+              Create an Itinerary!
+            </Button>
+            </div>
+        )}
+        </>
+      )}
     </Container>
   );
 }

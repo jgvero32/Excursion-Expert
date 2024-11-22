@@ -1,5 +1,5 @@
 import React from 'react';
-import { FavoriteBorder, Favorite } from "@mui/icons-material";
+import { FavoriteBorder, Favorite, DeleteOutline } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -9,6 +9,8 @@ import {
   Chip,
   Stack,
   Typography,
+  IconButton,
+  Rating,
 } from "@mui/material";
 import { Place } from '../Attractions';
 
@@ -17,7 +19,10 @@ interface AttractionCardsProps {
   favorites: string[];
   onFavoriteClick: (itemId: string) => void;
   onAddToItinerary: (item: Place) => void;
+  removeFromItinerary: (item: Place) => void;
   showButtons?: boolean;
+  showDelete?: boolean;
+  itinerary: Place[];
 }
 
 export const AttractionCards: React.FC<AttractionCardsProps> = ({
@@ -25,7 +30,10 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
   favorites,
   onFavoriteClick,
   onAddToItinerary,
-  showButtons
+  removeFromItinerary,
+  showButtons,
+  showDelete,
+  itinerary
 }) => {
   const formatTypes = (types: string[]): string[] => {
     return types.map(type => 
@@ -39,6 +47,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
     <Box sx={{ height: "-webkit-fill-available", overflow: "scroll" }}>
       {data.map((result, index) => {
         const itemId = `${index}`;
+        const isInItinerary = itinerary.some(item => item.id === result.id);
         return (
           <Box
             key={itemId}
@@ -50,7 +59,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
             }}
           >
             <Card className="card">
-              <CardContent className="card__content">
+              <CardContent className="card__content" sx={{ position: 'relative' }}>
                 <span className="card__content__container">
                   <Typography className="card__content__container__text">
                     {result.displayName?.text}
@@ -71,10 +80,25 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                     />
                   ))}
                 </Stack>
-                {result.rating && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Rating value={result.rating || 0} readOnly precision={0.5} />
+                  {result.rating ? (
+                  <Typography variant="body2" sx={{ ml: 1 }}>
                     Rating: {result.rating} ({result.userRatingCount} reviews)
                   </Typography>
+                  ) : (
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    No rating available
+                  </Typography>
+                  )}
+                </Box>
+                {showDelete && (
+                <IconButton
+                  sx={{ position: 'absolute', top: 50, right: 17 }}
+                  onClick={() => removeFromItinerary(result)}
+                >
+                  <DeleteOutline />
+                </IconButton>
                 )}
               </CardContent>
             </Card>
@@ -94,15 +118,15 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 </Button>
                 <Button
                   sx={{
-                    width: "152px",
+                    width: "157px",
                     height: "40px",
                     color: "#FFF",
                     textTransform: "none",
-                    backgroundColor: "#B279A7",
+                    backgroundColor: isInItinerary ? "#A3C4BC" : "#B279A7",
                   }}
-                  onClick={() => onAddToItinerary(result)}
+                  onClick={() => isInItinerary ? removeFromItinerary(result) : onAddToItinerary(result)}
                 >
-                  Add to itinerary
+                  {isInItinerary ? "Unadd From Itinerary" : "Add To Itinerary"}
                 </Button>
               </>
             )}

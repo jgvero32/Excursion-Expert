@@ -1,25 +1,18 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Rating,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, Stack, Typography, Box } from "@mui/material";
+
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import { styled } from '@mui/material/styles';
 import { AttractionCards } from "./AttractionCards/AttractionCards";
-import {
-  ArrowCircleLeftOutlined,
-  ArrowCircleRightOutlined,
-  DeleteOutline,
-  FilterAlt,
-} from "@mui/icons-material";
+import { ArrowCircleLeftOutlined, ArrowCircleRightOutlined, FilterAlt } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { mockData } from "../../mockData";
 import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
 import { useAuth } from "../../../../auth/authContext";
 import { RiseLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material";
 
 interface AttractionProps {
   city: string;
@@ -121,6 +114,26 @@ export interface FilterState {
   sortBy: "relevance" | "rating" | "reviews" | "distance";
 }
 
+const CssTextField = styled(TextField)({
+  '& label.Mui-focused': {
+    color: '#413C58',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: '#413C58',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#413C58',
+    },
+    '&:hover fieldset': {
+      borderColor: '#B279A7',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#B279A7',
+    },
+  },
+});
+
 export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   // State management
   const [isLoading, setIsLoading] = useState(false);
@@ -154,8 +167,9 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [foodData, setFoodData] = useState<Place[]>([]);
   const [nightlifeData, setNightlifeData] = useState<Place[]>([]);
   const [shoppingData, setShoppingData] = useState<Place[]>([]);
+  const [itineraryName, setItineraryName] = useState("");
+  const [noItineraryError, setNoItineraryError] = useState("");
 
-  console.log(sightsData);
   const navigate = useNavigate();
 
   const typeMapping: { [key: string]: string | null } = {
@@ -220,6 +234,14 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
       return isWithinPriceRange && meetsRating && isOpenNow && meetsAmenities;
     });
+  };
+
+  const formatTypes = (types: string[]): string[] => {
+    return types.map(type => 
+      type.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    );
   };
 
   // Data fetching and filtering based on state
@@ -326,17 +348,22 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
           nightlife: "Food",
           shopping: "Nightlife",
           sights: "",
-          finalize: "",
+          finalize: "Shopping",
           savedItinerary: "",
         }[currentState];
 
   const handleSaveItinerary = async () => {
     // Save itinerary to backend
+    if (itinerary.length === 0) {
+      setNoItineraryError("Please add at least one location to your itinerary.");
+      return;
+    }
+
     setIsLoading(true);
     const formatedItinerary = {
       username: currentUser?.username,
       city: city +', Illinois',
-      itineraryName: "intinerary-placeholder-name",
+      itineraryName: itineraryName,
       places: itinerary.map((place: Place) => ({
         name: place.displayName?.text,
         rating: `Rating: ${place.rating} (${place.userRatingCount} reviews)`,
@@ -355,13 +382,40 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     }
   };
 
+  const stateMapping: { [key in StateType]: number } = {
+    sights: 0,
+    food: 1,
+    nightlife: 2,
+    shopping: 3,
+    finalize: 4,
+    savedItinerary: 5,
+  };
+
+  const steps = ['Sights', 'Food', 'Nightlife', 'Shopping', 'Review Your Itinerary'];
+
+
   return (
     <div className="attractions">
+      {currentState !== "savedItinerary" && (
+     <div className="attractions__stepper">
+        <Box sx={{ width: '80%' }}>
+          <Stepper activeStep={stateMapping[currentState]} sx={{'.MuiStepIcon-root.Mui-completed': { color: "#B279A7" }, '.MuiStepIcon-root.Mui-active': { color: "#413C58" }, '.MuiStepIcon-root': { color: "#A3C4BC" }}}>
+            {steps.map((label, index) => (
+              <Step key={label}>
+          <StepLabel> {label} </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+      </div>
+      )}
+
       <Stack className="attractions__container" direction="row" spacing={2}>
         <div className="attractions__left-section">
           {currentState !== "savedItinerary" && (
             <div>
               <ArrowCircleLeftOutlined
+              
                 className="attractions__arrows"
                 onClick={handleBackNavigation}
               />
@@ -385,7 +439,8 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             <Typography className="attractions__text">
               {currentState === "finalize"
                 ? "Review Your Itinerary"
-                : getStateTitle()}
+                : getStateTitle()
+              }
             </Typography>
             {currentState !== "finalize" &&
               currentState !== "savedItinerary" && (
@@ -447,107 +502,111 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               </Stack>
             </div>
           )}
-
           {currentState === "finalize" ? (
-            <div>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Selected Locations ({itinerary.length})
-              </Typography>
-              {itinerary.map((item) => (
-                <Card key={item.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6">
-                      {item.displayName?.text}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      {item.formattedAddress}
-                    </Typography>
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      alignItems="center"
-                      sx={{ mt: 1 }}
-                    >
-                      <Rating value={item.rating} readOnly precision={0.5} />
-                      <Typography variant="body2">
-                        ({item.userRatingCount} reviews)
-                      </Typography>
-                    </Stack>
-                    <IconButton
-                      onClick={() =>
-                        setItinerary((prev) =>
-                          prev.filter((i) => i.id !== item.id)
-                        )
-                      }
-                      sx={{ position: "absolute", top: 8, right: 8 }}
-                    >
-                      <DeleteOutline />
-                    </IconButton>
-                  </CardContent>
-                </Card>
-              ))}
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  backgroundColor: "#413C58",
-                  "&:hover": {
-                    backgroundColor: "#302c41",
-                  },
-                }}
-                onClick={() => handleSaveItinerary()}
-              >
-                Save Itinerary
-              </Button>
-              {isLoading && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "20px",
-                  }}
+          <>
+            {itinerary.length !== 0 ? (
+              <>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <div style={{ width: '60%', left: '173px' }}>
+                    Selected Locations ({itinerary.length})
+                  </div>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
+                  <CssTextField 
+                    label="Enter itinerary name here" 
+                    id="custom-css-outlined-input" 
+                    sx={{ width: '60%', left: '173px' }}
+                    value={itineraryName}
+                    onChange={(e) => setItineraryName(e.target.value)}
+                  />
+                </Box>
+                <AttractionCards
+                  data={itinerary}
+                  onAddToItinerary={handleAddToItinerary}
+                  favorites={[]}
+                  onFavoriteClick={(itemId: string) =>
+                    handleAddToItinerary(
+                      itinerary.find((item) => item.id === itemId)!
+                    )
+                  }
+                  removeFromItinerary={(item: Place) => 
+                    setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+                  }
+                  showButtons={false}
+                  showDelete={true}
+                  itinerary={itinerary}
+                />
+                {isLoading && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "20px",
+                    }}
+                  >
+                    <RiseLoader color="#413C58" />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+
+                <Typography
+                  variant="h6"
+                  sx={{ display: "block", textAlign: "center", marginTop: 1 }}
                 >
-                  <RiseLoader color="#413C58" />
-                </div>
-              )}
-            </div>
-          ) : (
-            currentState !== "savedItinerary" && (
-              <AttractionCards
-                data={data}
-                onAddToItinerary={handleAddToItinerary}
-                favorites={[]}
-                onFavoriteClick={(itemId: string) =>
-                  handleAddToItinerary(
-                    itinerary.find((item) => item.id === itemId)!
-                  )
-                }
-                showButtons={true}
-              />
-            )
-          )}
+                  {"Please add at least one place to your itinerary."}
+                </Typography>
+              </>
+            )}
+          </>
+        ) : (
+          currentState !== "savedItinerary" && (
+            <AttractionCards
+              data={data}
+              onAddToItinerary={handleAddToItinerary}
+              favorites={[]}
+              onFavoriteClick={(itemId: string) =>
+                handleAddToItinerary(
+                  itinerary.find((item) => item.id === itemId)!
+                )
+              }
+              removeFromItinerary={(item: Place) => 
+                setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+              }
+              showButtons={true}
+              itinerary={itinerary}
+            />
+          )
+        )}
         </div>
         <div className="attractions__right-section">
           {currentState !== "savedItinerary" && (
             <div>
-              <ArrowCircleRightOutlined
-                className="attractions__arrows"
-                onClick={() => {
-                  if (currentState === "finalize") {
-                    handleSaveItinerary();
-                  } else {
-                    handleNextState();
-                  }
-                }}
-              />
-              <Typography
-                variant="caption"
-                className="attractions__next-text"
-                sx={{ display: "block", textAlign: "center", marginTop: 1 }}
-              >
-                {getNextStateLabel()}
-              </Typography>
+              {itinerary.length === 0 && currentState === "finalize" ? (
+                <>
+                </>
+              ) : (
+                <>
+                  <ArrowCircleRightOutlined
+                    className="attractions__arrows"
+                    onClick={() => {
+                      if (currentState === "finalize") {
+                        handleSaveItinerary();
+                      } else {
+                        handleNextState();
+                      }
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    className="attractions__next-text"
+                    sx={{ display: "block", textAlign: "center", marginTop: 1 }}
+                  >
+                    {getNextStateLabel()}
+                  </Typography>
+                </>
+              )}
             </div>
           )}
         </div>
