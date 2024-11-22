@@ -1,11 +1,15 @@
 import { Button, Stack, Typography, Box } from "@mui/material";
 
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import { styled } from '@mui/material/styles';
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import { styled } from "@mui/material/styles";
 import { AttractionCards } from "./AttractionCards/AttractionCards";
-import { ArrowCircleLeftOutlined, ArrowCircleRightOutlined, FilterAlt } from "@mui/icons-material";
+import {
+  ArrowCircleLeftOutlined,
+  ArrowCircleRightOutlined,
+  FilterAlt,
+} from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { mockData } from "../../mockData";
 import { FiltersDialog } from "./FiltersDialog/FiltersDialog";
@@ -99,13 +103,7 @@ export interface FilterState {
   priceRange: number[];
   minRating: number;
   amenities: {
-    parking: boolean;
     wheelchairAccessible: boolean;
-    publicTransit: boolean;
-    wifi: boolean;
-    restrooms: boolean;
-    familyFriendly: boolean;
-    petFriendly: boolean;
     goodForChildren: boolean;
     restroom: boolean;
     parkingOptions: boolean;
@@ -115,21 +113,21 @@ export interface FilterState {
 }
 
 const CssTextField = styled(TextField)({
-  '& label.Mui-focused': {
-    color: '#413C58',
+  "& label.Mui-focused": {
+    color: "#413C58",
   },
-  '& .MuiInput-underline:after': {
-    borderBottomColor: '#413C58',
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "#413C58",
   },
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: '#413C58',
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "#413C58",
     },
-    '&:hover fieldset': {
-      borderColor: '#B279A7',
+    "&:hover fieldset": {
+      borderColor: "#B279A7",
     },
-    '&.Mui-focused fieldset': {
-      borderColor: '#B279A7',
+    "&.Mui-focused fieldset": {
+      borderColor: "#B279A7",
     },
   },
 });
@@ -144,16 +142,10 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [itinerary, setItinerary] = useState<Place[]>([]);
   const [filters, setFilters] = useState<FilterState>({
-    priceRange: [0, 4],
+    priceRange: [0, Infinity],
     minRating: 0,
     amenities: {
-      parking: false,
       wheelchairAccessible: false,
-      publicTransit: false,
-      wifi: false,
-      restrooms: false,
-      familyFriendly: false,
-      petFriendly: false,
       goodForChildren: false,
       restroom: false,
       parkingOptions: false,
@@ -184,34 +176,37 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
   const applyFilters = (places: Place[]) => {
     return places.filter((place) => {
-      const isWithinPriceRange = place.priceLevel
-        ? filters.priceRange.includes(parseInt(place.priceLevel))
-        : true;
+      const startPrice = place.priceRange?.startPrice?.units
+        ? parseInt(place.priceRange.startPrice.units)
+        : 0; // Default to 0 for places without a priceRange
+
+      const endPrice = place.priceRange?.endPrice?.units
+        ? parseInt(place.priceRange.endPrice.units)
+        : Infinity; // Default to Infinity if `endPrice` is unset
+
+      // Include locations without priceRange only if the selected range includes 0
+      const hasPriceRange =
+        place.priceRange !== undefined || filters.priceRange[0] === 0;
+
+      const isWithinPriceRange =
+        hasPriceRange &&
+        startPrice <= filters.priceRange[1] &&
+        endPrice > filters.priceRange[0];
+
       const meetsRating = place.rating
         ? place.rating >= filters.minRating
         : true;
+
       const isOpenNow = filters.openNow
         ? place.businessStatus === "OPERATIONAL"
         : true;
 
-      // Check if place meets all selected amenities criteria
       const meetsAmenities = Object.entries(filters.amenities).every(
         ([key, value]) => {
           if (value) {
             switch (key) {
-              case "parking":
-                return (
-                  place.parkingOptions?.freeParkingLot ||
-                  place.parkingOptions?.paidParkingLot
-                );
               case "wheelchairAccessible":
                 return place.accessibilityOptions?.wheelchairAccessibleEntrance;
-              case "publicTransit":
-                return place.accessibilityOptions?.wheelchairAccessibleEntrance;
-              case "restrooms":
-                return place.restroom === true;
-              case "familyFriendly":
-                return place.goodForChildren === true;
               case "goodForChildren":
                 return place.goodForChildren === true;
               case "restroom":
@@ -237,10 +232,11 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   };
 
   const formatTypes = (types: string[]): string[] => {
-    return types.map(type => 
-      type.split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+    return types.map((type) =>
+      type
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     );
   };
 
@@ -355,14 +351,16 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const handleSaveItinerary = async () => {
     // Save itinerary to backend
     if (itinerary.length === 0) {
-      setNoItineraryError("Please add at least one location to your itinerary.");
+      setNoItineraryError(
+        "Please add at least one location to your itinerary."
+      );
       return;
     }
 
     setIsLoading(true);
     const formatedItinerary = {
       username: currentUser?.username,
-      city: city +', Illinois',
+      city: city + ", Illinois",
       itineraryName: itineraryName,
       places: itinerary.map((place: Place) => ({
         name: place.displayName?.text,
@@ -391,23 +389,35 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     savedItinerary: 5,
   };
 
-  const steps = ['Sights', 'Food', 'Nightlife', 'Shopping', 'Review Your Itinerary'];
-
+  const steps = [
+    "Sights",
+    "Food",
+    "Nightlife",
+    "Shopping",
+    "Review Your Itinerary",
+  ];
 
   return (
     <div className="attractions">
       {currentState !== "savedItinerary" && (
-     <div className="attractions__stepper">
-        <Box sx={{ width: '80%' }}>
-          <Stepper activeStep={stateMapping[currentState]} sx={{'.MuiStepIcon-root.Mui-completed': { color: "#B279A7" }, '.MuiStepIcon-root.Mui-active': { color: "#413C58" }, '.MuiStepIcon-root': { color: "#A3C4BC" }}}>
-            {steps.map((label, index) => (
-              <Step key={label}>
-          <StepLabel> {label} </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
-      </div>
+        <div className="attractions__stepper">
+          <Box sx={{ width: "80%" }}>
+            <Stepper
+              activeStep={stateMapping[currentState]}
+              sx={{
+                ".MuiStepIcon-root.Mui-completed": { color: "#B279A7" },
+                ".MuiStepIcon-root.Mui-active": { color: "#413C58" },
+                ".MuiStepIcon-root": { color: "#A3C4BC" },
+              }}
+            >
+              {steps.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel> {label} </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
+        </div>
       )}
 
       <Stack className="attractions__container" direction="row" spacing={2}>
@@ -415,7 +425,6 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
           {currentState !== "savedItinerary" && (
             <div>
               <ArrowCircleLeftOutlined
-              
                 className="attractions__arrows"
                 onClick={handleBackNavigation}
               />
@@ -439,8 +448,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             <Typography className="attractions__text">
               {currentState === "finalize"
                 ? "Review Your Itinerary"
-                : getStateTitle()
-              }
+                : getStateTitle()}
             </Typography>
             {currentState !== "finalize" &&
               currentState !== "savedItinerary" && (
@@ -503,89 +511,98 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
             </div>
           )}
           {currentState === "finalize" ? (
-          <>
-            {itinerary.length !== 0 ? (
-              <>
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                  <div style={{ width: '60%', left: '173px' }}>
-                    Selected Locations ({itinerary.length})
-                  </div>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
-                  <CssTextField 
-                    label="Enter itinerary name here" 
-                    id="custom-css-outlined-input" 
-                    sx={{ width: '60%', left: '173px' }}
-                    value={itineraryName}
-                    onChange={(e) => setItineraryName(e.target.value)}
-                  />
-                </Box>
-                <AttractionCards
-                  data={itinerary}
-                  onAddToItinerary={handleAddToItinerary}
-                  favorites={[]}
-                  onFavoriteClick={(itemId: string) =>
-                    handleAddToItinerary(
-                      itinerary.find((item) => item.id === itemId)!
-                    )
-                  }
-                  removeFromItinerary={(item: Place) => 
-                    setItinerary((prev) => prev.filter((i) => i.id !== item.id))
-                  }
-                  showButtons={false}
-                  showDelete={true}
-                  itinerary={itinerary}
-                />
-                {isLoading && (
-                  <div
-                    style={{
+            <>
+              {itinerary.length !== 0 ? (
+                <>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
+                  >
+                    <div style={{ width: "60%" }}>
+                      Selected Locations ({itinerary.length})
+                    </div>
+                  </Box>
+                  <Box
+                    sx={{
                       display: "flex",
-                      justifyContent: "center",
-                      marginTop: "20px",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      mb: 2,
                     }}
                   >
-                    <RiseLoader color="#413C58" />
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-
-                <Typography
-                  variant="h6"
-                  sx={{ display: "block", textAlign: "center", marginTop: 1 }}
-                >
-                  {"Please add at least one place to your itinerary."}
-                </Typography>
-              </>
-            )}
-          </>
-        ) : (
-          currentState !== "savedItinerary" && (
-            <AttractionCards
-              data={data}
-              onAddToItinerary={handleAddToItinerary}
-              favorites={[]}
-              onFavoriteClick={(itemId: string) =>
-                handleAddToItinerary(
-                  itinerary.find((item) => item.id === itemId)!
-                )
-              }
-              removeFromItinerary={(item: Place) => 
-                setItinerary((prev) => prev.filter((i) => i.id !== item.id))
-              }
-              showButtons={true}
-              itinerary={itinerary}
-            />
-          )
-        )}
+                    <CssTextField
+                      label="Enter itinerary name here"
+                      id="custom-css-outlined-input"
+                      sx={{ width: "60%" }}
+                      value={itineraryName}
+                      onChange={(e) => setItineraryName(e.target.value)}
+                    />
+                  </Box>
+                  <AttractionCards
+                    data={itinerary}
+                    onAddToItinerary={handleAddToItinerary}
+                    favorites={[]}
+                    onFavoriteClick={(itemId: string) =>
+                      handleAddToItinerary(
+                        itinerary.find((item) => item.id === itemId)!
+                      )
+                    }
+                    removeFromItinerary={(item: Place) =>
+                      setItinerary((prev) =>
+                        prev.filter((i) => i.id !== item.id)
+                      )
+                    }
+                    showButtons={false}
+                    showDelete={true}
+                    itinerary={itinerary}
+                  />
+                  {isLoading && (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <RiseLoader color="#413C58" />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Typography
+                    variant="h6"
+                    sx={{ display: "block", textAlign: "center", marginTop: 1 }}
+                  >
+                    {"Please add at least one place to your itinerary."}
+                  </Typography>
+                </>
+              )}
+            </>
+          ) : (
+            currentState !== "savedItinerary" && (
+              <AttractionCards
+                data={data}
+                onAddToItinerary={handleAddToItinerary}
+                favorites={[]}
+                onFavoriteClick={(itemId: string) =>
+                  handleAddToItinerary(
+                    itinerary.find((item) => item.id === itemId)!
+                  )
+                }
+                removeFromItinerary={(item: Place) =>
+                  setItinerary((prev) => prev.filter((i) => i.id !== item.id))
+                }
+                showButtons={true}
+                itinerary={itinerary}
+              />
+            )
+          )}
         </div>
         <div className="attractions__right-section">
           {currentState !== "savedItinerary" && (
             <div>
               {itinerary.length === 0 && currentState === "finalize" ? (
-                <>
-                </>
+                <></>
               ) : (
                 <>
                   <ArrowCircleRightOutlined
@@ -620,16 +637,10 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
           setFilterDialogOpen(false);
           setFilters({
             ...filters, // Reset each filter here to default
-            priceRange: [0, 4],
+            priceRange: [0, Infinity],
             minRating: 0,
             amenities: {
-              parking: false,
               wheelchairAccessible: false,
-              publicTransit: false,
-              wifi: false,
-              restrooms: false,
-              familyFriendly: false,
-              petFriendly: false,
               goodForChildren: false,
               restroom: false,
               parkingOptions: false,

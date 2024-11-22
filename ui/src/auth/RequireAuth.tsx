@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './authContext';
+import React, { useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "./authContext";
 
 export interface RequireAuthProps {
   children: React.ReactElement;
@@ -8,12 +8,11 @@ export interface RequireAuthProps {
   allowedRoles?: string[];
 }
 
-export const RequireAuth = ({ 
-  children, 
-  redirectTo = '/login',
-  allowedRoles
+export const RequireAuth = ({
+  children,
+  redirectTo = "/login",
+  allowedRoles,
 }: RequireAuthProps) => {
-  
   const { authenticated, isAuthenticating, currentUser } = useAuth();
 
   const { pathname, search } = useLocation();
@@ -26,10 +25,10 @@ export const RequireAuth = ({
   // Check if user is not authenticated
   if (!authenticated) {
     return (
-      <Navigate 
-        to={redirectTo} 
-        state={{ redirectedFrom: [pathname, search].join('') }} 
-        replace 
+      <Navigate
+        to={redirectTo}
+        state={{ redirectedFrom: [pathname, search].join("") }}
+        replace
       />
     );
   }

@@ -1,9 +1,7 @@
-import { Box, Button, TextField, Typography} from '@mui/material';
-import './Profile.scss';
+import { Box, Button, TextField, Typography } from "@mui/material";
+import "./Profile.scss";
 
 export function Profile() {
-
-
   return (
     <Box className="profile">
       <Box className="profile-container">
@@ -13,7 +11,7 @@ export function Profile() {
         <Box component="form" className="profile-form">
           <Box className="profile-field">
             <TextField
-              sx={{backgroundColor:"White", borderRadius: "8px"}}
+              sx={{ backgroundColor: "White", borderRadius: "8px" }}
               label="Username"
               name="username"
               fullWidth
@@ -21,15 +19,15 @@ export function Profile() {
           </Box>
           <Box className="profile-field">
             <TextField
-              sx={{backgroundColor:"White", borderRadius: "8px"}}
+              sx={{ backgroundColor: "White", borderRadius: "8px" }}
               label="Password"
               name="password"
               fullWidth
             />
           </Box>
           <Box className="profile-field">
-            <TextField 
-              sx={{backgroundColor:"White",borderRadius: "8px"}}
+            <TextField
+              sx={{ backgroundColor: "White", borderRadius: "8px" }}
               label="Default Location"
               name="location"
               fullWidth

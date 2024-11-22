@@ -1,6 +1,12 @@
-import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Itinerary } from '../pages/Itineraries/Itineraries';
+import React, {
+  createContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
+import { Navigate } from "react-router-dom";
+import { Itinerary } from "../pages/Itineraries/Itineraries";
 
 interface User {
   id: string;
@@ -36,13 +42,14 @@ interface AuthState {
   authError: string | React.ReactNode;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000/api";
 
 const unauthorizedState: AuthState = {
   isAuthenticating: false,
   currentUser: null,
   authenticated: false,
-  authError: '',
+  authError: "",
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -53,54 +60,57 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authData, setAuthData] = useState<AuthState>(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    console.log('token', token);
-    console.log('user', user);
-    
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    console.log("token", token);
+    console.log("user", user);
+
     if (token && user) {
-      console.log('token and user found');
+      console.log("token and user found");
       return {
         isAuthenticating: false,
         currentUser: JSON.parse(user),
         authenticated: true,
-        authError: '',
+        authError: "",
       };
     }
-    
+
     return unauthorizedState;
   });
 
   const clearError = () => {
-    setAuthData(prev => ({ ...prev, authError: '' }));
+    setAuthData((prev) => ({ ...prev, authError: "" }));
   };
 
   const handleAuthError = (error: any): React.ReactNode => {
-    const errorMessage = error.message || 'An error occurred';
-    
+    const errorMessage = error.message || "An error occurred";
+
     switch (errorMessage) {
-      case 'Invalid username or password':
-        return 'Invalid email or password';
-      case 'Account locked':
+      case "Invalid username or password":
+        return "Invalid email or password";
+      case "Account locked":
         return (
           <span>
-            Your account is locked. Please reset your password by clicking "Forgot Password" below.
+            Your account is locked. Please reset your password by clicking
+            "Forgot Password" below.
           </span>
         );
-      case 'Too many failed login attempts':
+      case "Too many failed login attempts":
         return (
           <span>
-            Your account has been locked due to too many unsuccessful login attempts. 
-            We've sent you an email to help reset your password.
+            Your account has been locked due to too many unsuccessful login
+            attempts. We've sent you an email to help reset your password.
           </span>
         );
-      case 'Email already exists':
-        return 'An account with this email already exists';
+      case "Email already exists":
+        return "An account with this email already exists";
       default:
         return (
           <span>
-            A System Error has occurred. Please try again later or contact us at{' '}
-            <a href="mailto:support@excursionexpert.com">support@excursionexpert.com</a>
+            A System Error has occurred. Please try again later or contact us at{" "}
+            <a href="mailto:support@excursionexpert.com">
+              support@excursionexpert.com
+            </a>
           </span>
         );
     }
@@ -108,38 +118,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkAuthStatus = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error('No token found');
+        throw new Error("No token found");
       }
 
-      setAuthData(prev => ({ ...prev, isAuthenticating: true }));
-      
+      setAuthData((prev) => ({ ...prev, isAuthenticating: true }));
+
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        credentials: 'include',
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const userData = await response.json();
-      
+
       setAuthData({
         isAuthenticating: false,
         authenticated: true,
         currentUser: userData,
-        authError: '',
+        authError: "",
       });
 
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setAuthData(unauthorizedState);
     }
   }, []);
@@ -147,10 +157,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (data: RegisterData): Promise<void> => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -163,20 +173,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Store auth data after successful registration
       if (responseData.token) {
-        localStorage.setItem('token', responseData.token);
-        localStorage.setItem('user', JSON.stringify(responseData.user));
+        localStorage.setItem("token", responseData.token);
+        localStorage.setItem("user", JSON.stringify(responseData.user));
       }
 
       setAuthData({
         isAuthenticating: false,
         authenticated: true,
         currentUser: responseData.user,
-        authError: '',
+        authError: "",
       });
     } catch (error: any) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setAuthData(prev => ({
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setAuthData((prev) => ({
         ...prev,
         authError: handleAuthError(error),
       }));
@@ -187,10 +197,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logIn = async (username: string, password: string): Promise<void> => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
@@ -198,25 +208,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || "Login failed");
       }
 
       // Store auth data
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
 
       setAuthData({
         isAuthenticating: false,
         authenticated: true,
         currentUser: data.user,
-        authError: '',
+        authError: "",
       });
     } catch (err: any) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setAuthData(prev => ({
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setAuthData((prev) => ({
         ...prev,
         authError: handleAuthError(err),
       }));
@@ -226,39 +236,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logOut = async (): Promise<void> => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await fetch(`${API_BASE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '',
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       });
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setAuthData(unauthorizedState);
     }
   };
 
   const saveItinerary = async (itinerary: any): Promise<void> => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}/itineraries/save-itinerary`, {
-      method: 'POST',
-      credentials: 'include',
+      method: "POST",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
       },
       body: JSON.stringify(itinerary),
     });
 
     if (response.ok) {
       const data = await response.json();
-      console.log('Itinerary saved:', data);
+      console.log("Itinerary saved:", data);
     } else {
-      console.error('Error saving itinerary:', response.statusText);
+      console.error("Error saving itinerary:", response.statusText);
     }
   };
 
@@ -268,19 +278,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [checkAuthStatus]);
 
   const getItineraries = async (username: string): Promise<Itinerary[]> => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/itineraries/get-itineraries?username=${username}`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
-      },
-    });
-  
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `${API_BASE_URL}/itineraries/get-itineraries?username=${username}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    );
+
     if (response.ok) {
       const data = await response.json();
-  
+
       // Transform the data
       const transformedData = data.map((itinerary: any) => {
         const { name, places, ...rest } = itinerary;
@@ -290,7 +303,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             ...placeRest,
             displayName: {
               text: name,
-              languageCode: 'en',
+              languageCode: "en",
             },
           };
         });
@@ -298,16 +311,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           ...rest,
           displayName: {
             text: `Itinerary for ${name}`,
-            languageCode: 'en',
+            languageCode: "en",
           },
           places: transformedPlaces,
         };
       });
-      console.log('Itineraries fetched:', transformedData);
-  
+      console.log("Itineraries fetched:", transformedData);
+
       return transformedData;
     } else {
-      console.error('Error fetching itineraries:', response.statusText);
+      console.error("Error fetching itineraries:", response.statusText);
       return [];
     }
   };
@@ -343,16 +356,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
 export const useAuth = (): AuthContextValue => {
   const context = React.useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -362,19 +373,19 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export const ProtectedRoute = ({ 
-  children, 
-  redirectTo = '/login' 
+export const ProtectedRoute = ({
+  children,
+  redirectTo = "/login",
 }: ProtectedRouteProps) => {
   const { authenticated, isAuthenticating } = useAuth();
-  
+
   if (isAuthenticating) {
     return <div>Loading...</div>; // Or your loading component
   }
-  
+
   if (!authenticated) {
     return <Navigate to={redirectTo} />;
   }
-  
+
   return <>{children}</>;
 };

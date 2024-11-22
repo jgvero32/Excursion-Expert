@@ -1,9 +1,19 @@
-import { Autocomplete, TextField, FormControlLabel, Checkbox, Button, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Button,
+  Typography,
+} from "@mui/material";
 import Cities from "../../Cities";
 import { useState } from "react";
 
 interface InputBarProps {
-  onSubmit: (event: React.FormEvent<HTMLFormElement>, currentCity: string) => void;
+  onSubmit: (
+    event: React.FormEvent<HTMLFormElement>,
+    currentCity: string
+  ) => void;
 }
 
 export const InputForm = ({ onSubmit }: InputBarProps) => {
@@ -17,9 +27,7 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
 
   return (
     <div className="inputForm">
-      <Typography className="inputForm__text">
-        Choose a Location
-      </Typography>
+      <Typography className="inputForm__text">Choose a Location</Typography>
       <div className="inputForm__container">
         <div className="inputForm__container__content">
           <Typography className="inputForm__container__content__text">
@@ -32,13 +40,13 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
               size="small"
               options={Cities}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="Enter A location"
-                />
+                <TextField {...params} placeholder="Enter A location" />
               )}
               value={inputValue}
-              onChange={(event: React.SyntheticEvent, newValue: string | null) => {
+              onChange={(
+                event: React.SyntheticEvent,
+                newValue: string | null
+              ) => {
                 setInputValue(newValue || "");
               }}
               onInputChange={(event, newInputValue) => {
@@ -47,33 +55,34 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
               disabled={useDefaultLocation}
               ListboxProps={{
                 sx: {
-                  '& .MuiAutocomplete-option': {
-                    color: '#413C58',
+                  "& .MuiAutocomplete-option": {
+                    color: "#413C58",
                   },
                   '& .MuiAutocomplete-option[data-focus="true"]': {
-                    backgroundColor: '#B279A7',
+                    backgroundColor: "#B279A7",
                   },
                   '& .MuiAutocomplete-option[aria-selected="true"]': {
-                    backgroundColor: '#B279A7',
+                    backgroundColor: "#B279A7",
                   },
                 },
               }}
               sx={{
-                '&:hover .MuiOutlinedInput-root': {
-                  borderColor: '#413C58',
+                "&:hover .MuiOutlinedInput-root": {
+                  borderColor: "#413C58",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#B279A7',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#B279A7",
                 },
-                '& .MuiOutlinedInput-root': {
-                  borderColor: '#413C58',
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#413C58",
                 },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#B279A7',
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#B279A7",
                 },
-                '& .MuiAutocomplete-inputRoot[class*="Mui-focused"] .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#B279A7',
-                },
+                '& .MuiAutocomplete-inputRoot[class*="Mui-focused"] .MuiOutlinedInput-notchedOutline':
+                  {
+                    borderColor: "#B279A7",
+                  },
               }}
             />
             <FormControlLabel
@@ -84,7 +93,7 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
                   onChange={(e) => setUseDefaultLocation(e.target.checked)}
                   sx={{
                     color: "white",
-                    '&.Mui-checked': {
+                    "&.Mui-checked": {
                       color: "white",
                     },
                   }}
@@ -94,6 +103,7 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
             />
             <div className="inputForm__buttonContainer">
               <Button
+                fullWidth
                 variant="contained"
                 className="inputForm__container__content__button"
                 type="submit"
@@ -107,4 +117,4 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
       </div>
     </div>
   );
-}
+};

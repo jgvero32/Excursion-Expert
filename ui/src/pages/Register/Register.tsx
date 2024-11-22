@@ -1,8 +1,14 @@
-import { useState } from 'react';
-import { Box, Button, TextField, Typography, Link as MuiLink } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/authContext';
-import './Register.scss';
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Link as MuiLink,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/authContext";
+import "./Register.scss";
 
 interface RegisterForm {
   username: string;
@@ -16,7 +22,7 @@ export function Register() {
     username: "",
     email: "",
     password: "",
-    confirmedPassword: ""
+    confirmedPassword: "",
   });
 
   const [error, setError] = useState("");
@@ -25,9 +31,9 @@ export function Register() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -51,7 +57,7 @@ export function Register() {
       await register({
         email: formData.email,
         password: formData.password,
-        username: formData.username
+        username: formData.username,
       });
       navigate("/start-an-adventure");
     } catch (err: any) {
@@ -76,7 +82,7 @@ export function Register() {
             required
             margin="normal"
             InputProps={{
-              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
             }}
           />
           <TextField
@@ -89,7 +95,7 @@ export function Register() {
             required
             margin="normal"
             InputProps={{
-              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
             }}
           />
           <TextField
@@ -103,7 +109,7 @@ export function Register() {
             required
             margin="normal"
             InputProps={{
-              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
             }}
           />
           <TextField
@@ -117,11 +123,11 @@ export function Register() {
             required
             margin="normal"
             InputProps={{
-              style: { backgroundColor: '#ffffff', borderRadius: '8px' }
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
             }}
           />
           {error && (
-            <Typography color="error" style={{ marginBottom: '16px' }}>
+            <Typography color="error" style={{ marginBottom: "16px" }}>
               {error}
             </Typography>
           )}
@@ -135,9 +141,14 @@ export function Register() {
             Register
           </Button>
         </Box>
-        <Typography className="link" style={{ marginTop: '20px' }}>
-          Already have an account?{' '}
-          <MuiLink component={Link} to="/login" underline="hover" color="#3B3B4F">
+        <Typography className="link" style={{ marginTop: "20px" }}>
+          Already have an account?{" "}
+          <MuiLink
+            component={Link}
+            to="/login"
+            underline="hover"
+            color="#3B3B4F"
+          >
             Login here
           </MuiLink>
         </Typography>

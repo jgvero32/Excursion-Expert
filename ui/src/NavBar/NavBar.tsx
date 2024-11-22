@@ -95,7 +95,9 @@ export function NavBar() {
             backgroundColor: button.backgroundColor || "transparent",
             color: button.textColor || "inherit",
             borderRadius: button.backgroundColor ? "8px" : "none",
-            borderBottom: location.pathname.includes(button.path) ? "3px solid #4B644A" : "none",
+            borderBottom: location.pathname.includes(button.path)
+              ? "3px solid #4B644A"
+              : "none",
           }}
           className={!button.backgroundColor ? "navBar__buttons__text" : ""}
         >
@@ -111,8 +113,20 @@ export function NavBar() {
 
   return (
     <div className="navBar">
-      <Link to={"/home"} style={{ textDecoration: "none", display: "flex", alignItems: "center", marginLeft: "10px" }}>
-        <img src="/favicon.ico" alt="favicon" style={{ marginRight: "8px", width: "50px", height: "50px" }} />
+      <Link
+        to={"/home"}
+        style={{
+          textDecoration: "none",
+          display: "flex",
+          alignItems: "center",
+          marginLeft: "10px",
+        }}
+      >
+        <img
+          src="/favicon.ico"
+          alt="favicon"
+          style={{ marginRight: "8px", width: "50px", height: "50px" }}
+        />
         <Typography className="navBar__text">Excursion Expert</Typography>
       </Link>
       <div className="navBar__right">

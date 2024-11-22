@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -15,7 +15,7 @@ import {
   SelectChangeEvent,
   Slider,
   Stack,
-  Typography
+  Typography,
 } from "@mui/material";
 import { FilterState } from "../Attractions";
 
@@ -32,14 +32,19 @@ export const FiltersDialog = ({
   filters,
   onClose,
   onApply,
-  onResetFilters
+  onResetFilters,
 }: FiltersDialogProps) => {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
 
   // Handlers for filter changes
-  const handlePriceRangeChange = (_: Event, newValue: number | number[]) => {
-    setLocalFilters((prev) => ({ ...prev, priceRange: newValue as number[] }));
-  };
+  // const handlePriceRangeChange = (_: Event, newValue: number | number[]) => {
+  //   if (Array.isArray(newValue)) {
+  //     setLocalFilters((prev) => ({
+  //       ...prev,
+  //       priceRange: newValue as [number, number], // Ensure it's a tuple
+  //     }));
+  //   }
+  // };
 
   const handleMinRatingChange = (
     _: SyntheticEvent<Element, Event>,
@@ -53,17 +58,17 @@ export const FiltersDialog = ({
       ...prev,
       amenities: {
         ...prev.amenities,
-        [amenity]: !prev.amenities[amenity]
-      }
+        [amenity]: !prev.amenities[amenity],
+      },
     }));
   };
 
-  const handleSortByChange = (event: SelectChangeEvent) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      sortBy: event.target.value as FilterState["sortBy"],
-    }));
-  };
+  // const handleSortByChange = (event: SelectChangeEvent) => {
+  //   setLocalFilters((prev) => ({
+  //     ...prev,
+  //     sortBy: event.target.value as FilterState["sortBy"],
+  //   }));
+  // };
 
   const handleOpenNowChange = () => {
     setLocalFilters((prev) => ({ ...prev, openNow: !prev.openNow }));
@@ -72,6 +77,23 @@ export const FiltersDialog = ({
   const handleApplyFilters = () => {
     onApply(localFilters);
     onClose();
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters: FilterState = {
+      priceRange: [0, 200], // Full range
+      minRating: 0,
+      amenities: {
+        wheelchairAccessible: false,
+        goodForChildren: false,
+        restroom: false,
+        parkingOptions: false,
+      },
+      openNow: false,
+      sortBy: "relevance",
+    };
+
+    setLocalFilters(defaultFilters); // Reset local state
   };
 
   return (
@@ -84,16 +106,21 @@ export const FiltersDialog = ({
             <Typography gutterBottom>Price Range</Typography>
             <Slider
               value={localFilters.priceRange}
-              onChange={handlePriceRangeChange}
+              onChange={(_, newValue) =>
+                setLocalFilters((prev) => ({
+                  ...prev,
+                  priceRange: newValue as number[],
+                }))
+              }
               valueLabelDisplay="auto"
               min={0}
-              max={4}
+              max={200}
               marks={[
-                { value: 0, label: "$" },
-                { value: 1, label: "$$" },
-                { value: 2, label: "$$$" },
-                { value: 3, label: "$$$$" },
-                { value: 4, label: "$$$$$" }
+                { value: 0, label: "$0" },
+                { value: 50, label: "$50" },
+                { value: 100, label: "$100" },
+                { value: 150, label: "$150" },
+                { value: 200, label: "$200+" },
               ]}
             />
           </div>
@@ -123,10 +150,16 @@ export const FiltersDialog = ({
                     control={
                       <Checkbox
                         checked={value}
-                        onChange={() => handleAmenityChange(key as keyof FilterState["amenities"])}
+                        onChange={() =>
+                          handleAmenityChange(
+                            key as keyof FilterState["amenities"]
+                          )
+                        }
                       />
                     }
-                    label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                    label={key
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (str) => str.toUpperCase())}
                   />
                 ))}
               </Stack>
@@ -146,10 +179,10 @@ export const FiltersDialog = ({
             label="Open Now"
           />
 
-          <Divider />
+          {/* <Divider /> */}
 
           {/* Sort By */}
-          <div>
+          {/* <div>
             <Typography gutterBottom>Sort By</Typography>
             <Select
               value={localFilters.sortBy}
@@ -161,14 +194,24 @@ export const FiltersDialog = ({
               <MenuItem value="reviews">Reviews</MenuItem>
               <MenuItem value="distance">Distance</MenuItem>
             </Select>
-          </div>
+          </div> */}
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onResetFilters} color="primary">
+        <Button
+          onClick={() => {
+            handleResetFilters();
+            onResetFilters();
+          }}
+          color="primary"
+        >
           Reset
         </Button>
-        <Button onClick={handleApplyFilters} color="primary" variant="contained">
+        <Button
+          onClick={handleApplyFilters}
+          color="primary"
+          variant="contained"
+        >
           Apply
         </Button>
       </DialogActions>
