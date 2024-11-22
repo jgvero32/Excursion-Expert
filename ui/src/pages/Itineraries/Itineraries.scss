@@ -24,7 +24,11 @@
     }
   }
   .cards {
-    left: 30%;
+    max-height: 70vh;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
   .button-container {

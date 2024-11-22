@@ -95,7 +95,7 @@ export function NavBar() {
             backgroundColor: button.backgroundColor || "transparent",
             color: button.textColor || "inherit",
             borderRadius: button.backgroundColor ? "8px" : "none",
-            borderBottom: location.pathname.includes(button.path) ? "3px solid #A3C4BC" : "none",
+            borderBottom: location.pathname.includes(button.path) ? "3px solid #4B644A" : "none",
           }}
           className={!button.backgroundColor ? "navBar__buttons__text" : ""}
         >

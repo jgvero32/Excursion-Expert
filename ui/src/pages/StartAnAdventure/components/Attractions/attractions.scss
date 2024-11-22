@@ -13,13 +13,16 @@
     font-family: Lato;
     font-size: 40px;
     font-weight: 700;
-    padding: 20px 0px;
+    padding-top: 20px;
   }
   &__arrows {
     width: 83px;
     height: 83px;
     color: #B279A7;
     padding: 0px 45px;
+    &:active {
+      color: #4B644A;
+    }
   }
   &__container {
     display: flex;

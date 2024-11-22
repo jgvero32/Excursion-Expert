@@ -62,8 +62,8 @@ export function Itineraries() {
         <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
           <RiseLoader color="#413C58" />
         </Container>
-      ) : selectedItinerary ? ( // this is for when an itinerary is selected and we should see all itineraries
-        <>
+      ) : selectedItinerary ? ( // this is for when an itinerary is selected and we should see all places in that itinerary
+        <div className="places-in-itinerary">
           <Typography className="itinerary-name" variant="h5" gutterBottom>
             {selectedItinerary.itineraryName}
           </Typography>
@@ -82,7 +82,7 @@ export function Itineraries() {
           <div className="button-container" >
             <Button className="button" onClick={() => setSelectedItinerary(null)}>Back to Itineraries</Button>
           </div>
-        </>
+        </div>
       ) : ( // this is for when no itinerary is selected aka we're only seeing itineraries 
         <>
         {itineraries.length !== 0 ? (
