@@ -1,10 +1,39 @@
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, CircularProgress, Link as MuiLink } from '@mui/material';
+import { Box, Button, TextField, Typography, CircularProgress, Link as MuiLink, styled } from '@mui/material';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/authContext';
 import "./Login.scss";
 
 type LocationState = { redirectedFrom: string };
+
+const CssTextField = styled(TextField)({
+  '& label': {
+    color: '#FFFFFF',
+  },
+  '& label.Mui-focused': {
+    color: '#FFFFFF',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: '#413C58',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#FFFFFF',
+    },
+    '&:hover fieldset': {
+      borderColor: '#B279A7',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#B279A7',
+    },
+    '& input': {
+      color: '#FFFFFF',
+    },
+    '& input::placeholder': {
+      color: '#413C58',
+    },
+  },
+});
 
 export function Login() {
   const { logIn, authenticated, authError } = useAuth();
@@ -39,10 +68,10 @@ export function Login() {
     <div className='login'>
       <Box className="login-container">
         <Typography variant="h4" className="login-title">
-          Log in
+          Log In
         </Typography>
         <Box component="form" className="login-form" onSubmit={handleSubmit}>
-          <TextField
+          <CssTextField
             label="Username"
             name="username"
             placeholder="Enter your username here"
@@ -51,7 +80,7 @@ export function Login() {
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
-          <TextField
+          <CssTextField
             label="Password"
             type="password"
             name="password"
@@ -77,9 +106,9 @@ export function Login() {
               {isLoading ? <CircularProgress size={24} color="inherit" /> : "Log In"}
             </Button>
           </Box>
-          <Typography className="link" style={{ marginTop: '15px' }}>
+          <Typography className="link" style={{ marginTop: '15px', color: '#FFFFFF'}}>
             Don't have an account?{' '}
-            <MuiLink component={Link} to="/register" underline="hover">
+            <MuiLink component={Link} to="/register" underline="hover" sx={{ color: '#4B644A' }}>
               Register here
             </MuiLink>
           </Typography>

@@ -25,7 +25,7 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
           <Typography className="inputForm__container__content__text">
             Location
           </Typography>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="inputForm__form">
             <Autocomplete
               className="inputForm__container__content__textField"
               disablePortal
@@ -45,6 +45,36 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
                 setInputValue(newInputValue);
               }}
               disabled={useDefaultLocation}
+              ListboxProps={{
+                sx: {
+                  '& .MuiAutocomplete-option': {
+                    color: '#413C58',
+                  },
+                  '& .MuiAutocomplete-option[data-focus="true"]': {
+                    backgroundColor: '#B279A7',
+                  },
+                  '& .MuiAutocomplete-option[aria-selected="true"]': {
+                    backgroundColor: '#B279A7',
+                  },
+                },
+              }}
+              sx={{
+                '&:hover .MuiOutlinedInput-root': {
+                  borderColor: '#413C58',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#B279A7',
+                },
+                '& .MuiOutlinedInput-root': {
+                  borderColor: '#413C58',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#B279A7',
+                },
+                '& .MuiAutocomplete-inputRoot[class*="Mui-focused"] .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#B279A7',
+                },
+              }}
             />
             <FormControlLabel
               className="inputForm__container__content__checkbox"
@@ -52,18 +82,26 @@ export const InputForm = ({ onSubmit }: InputBarProps) => {
                 <Checkbox
                   checked={useDefaultLocation}
                   onChange={(e) => setUseDefaultLocation(e.target.checked)}
+                  sx={{
+                    color: "white",
+                    '&.Mui-checked': {
+                      color: "white",
+                    },
+                  }}
                 />
               }
               label="Use default location"
             />
-            <Button
-              variant="contained"
-              className="inputForm__container__content__button"
-              type="submit"
-              disabled={!useDefaultLocation && inputValue === ""}
-            >
-              Next!
-            </Button>
+            <div className="inputForm__buttonContainer">
+              <Button
+                variant="contained"
+                className="inputForm__container__content__button"
+                type="submit"
+                disabled={!useDefaultLocation && inputValue === ""}
+              >
+                Next!
+              </Button>
+            </div>
           </form>
         </div>
       </div>

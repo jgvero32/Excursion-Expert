@@ -1,5 +1,5 @@
 import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
 import { AccountCircleOutlined } from "@mui/icons-material";
 import { useState } from "react";
@@ -64,6 +64,7 @@ const preLoginButtons: NavButtons[] = [
 
 export function NavBar() {
   const { authenticated, logOut, currentUser } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -86,18 +87,16 @@ export function NavBar() {
   };
 
   const renderButtons = (buttons: NavButtons[]) => {
+    console.log(location.pathname);
     return buttons.map((button) => (
       <Link className="navBar__buttons" to={button.path} key={button.label}>
         <Button
-          sx={
-            button.backgroundColor
-              ? {
-                  backgroundColor: button.backgroundColor,
-                  color: button.textColor,
-                  borderRadius: "8px",
-                }
-              : {}
-          }
+          sx={{
+            backgroundColor: button.backgroundColor || "transparent",
+            color: button.textColor || "inherit",
+            borderRadius: button.backgroundColor ? "8px" : "none",
+            borderBottom: location.pathname.includes(button.path) ? "3px solid #A3C4BC" : "none",
+          }}
           className={!button.backgroundColor ? "navBar__buttons__text" : ""}
         >
           {button.label}

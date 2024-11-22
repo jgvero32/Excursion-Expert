@@ -15,12 +15,17 @@
       display: flex;
       padding: 24px;
       flex-direction: column;
+      &__text {
+        color: #ffffff;
+        font-size: 18px;
+        font-family: Lato;
+      }
       &__textField {
         background: #F6F5FF;
         border-radius: 8px;
       }
       &__checkbox {
-        padding: 13px 9px 24px;
+        padding: 13px 9px;
         color: white;
       }
       &__button{
@@ -28,4 +33,10 @@
       }
     }
   }
+}
+
+.inputForm__buttonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
