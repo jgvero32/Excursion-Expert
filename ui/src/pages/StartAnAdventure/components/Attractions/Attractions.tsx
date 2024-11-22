@@ -534,6 +534,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   }
                   showButtons={false}
                   showDelete={true}
+                  itinerary={itinerary}
                 />
                 {isLoading && (
                   <div
@@ -574,6 +575,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                 setItinerary((prev) => prev.filter((i) => i.id !== item.id))
               }
               showButtons={true}
+              itinerary={itinerary}
             />
           )
         )}

@@ -53,6 +53,7 @@ export function Itineraries() {
   const handleRemoveFromItinerary = (item: Place) => {
     //TODO: write remove from itinerary functionality
   };
+  const [itinerary] = useState<Place[]>([]);
 
   return (
     <Container>
@@ -76,6 +77,7 @@ export function Itineraries() {
             }
             showButtons={false}
             showDelete={true}
+            itinerary={itinerary}
           />
           <div className="button-container" >
             <Button className="button" onClick={() => setSelectedItinerary(null)}>Back to Itineraries</Button>

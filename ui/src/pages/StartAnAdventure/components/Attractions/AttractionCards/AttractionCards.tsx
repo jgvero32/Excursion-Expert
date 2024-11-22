@@ -22,6 +22,7 @@ interface AttractionCardsProps {
   removeFromItinerary: (item: Place) => void;
   showButtons?: boolean;
   showDelete?: boolean;
+  itinerary: Place[];
 }
 
 export const AttractionCards: React.FC<AttractionCardsProps> = ({
@@ -31,7 +32,8 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
   onAddToItinerary,
   removeFromItinerary,
   showButtons,
-  showDelete
+  showDelete,
+  itinerary
 }) => {
   const formatTypes = (types: string[]): string[] => {
     return types.map(type => 
@@ -45,6 +47,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
     <Box sx={{ height: "-webkit-fill-available", overflow: "scroll" }}>
       {data.map((result, index) => {
         const itemId = `${index}`;
+        const isInItinerary = itinerary.some(item => item.id === result.id);
         return (
           <Box
             key={itemId}
@@ -115,15 +118,15 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 </Button>
                 <Button
                   sx={{
-                    width: "152px",
+                    width: "157px",
                     height: "40px",
                     color: "#FFF",
                     textTransform: "none",
-                    backgroundColor: "#B279A7",
+                    backgroundColor: isInItinerary ? "#A3C4BC" : "#B279A7",
                   }}
-                  onClick={() => onAddToItinerary(result)}
+                  onClick={() => isInItinerary ? removeFromItinerary(result) : onAddToItinerary(result)}
                 >
-                  Add to itinerary
+                  {isInItinerary ? "Unadd From Itinerary" : "Add To Itinerary"}
                 </Button>
               </>
             )}
