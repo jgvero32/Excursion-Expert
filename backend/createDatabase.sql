@@ -9,7 +9,8 @@ drop table landmark_type;
 drop table landmarks;
 drop table itineraries;
 drop table users;
-
+--drop table favtags;
+--drop table favs;
 DO $$
 BEGIN
 	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
@@ -32,22 +33,36 @@ username VARCHAR(50) references users(username)
 );
 
 CREATE TABLE if not exists landmarks(
-lm_name VARCHAR(100) PRIMARY KEY,
+lm_name VARCHAR(100),
 loc VARCHAR(100),
 maplink VARCHAR(200) NOT NULL, 
 rating VARCHAR(100) NOT NULL,
-iter_id UUID references itineraries(iter_id)
+iter_id UUID references itineraries(iter_id),
+PRIMARY KEY (lm_name, iter_id)
 );
 
 CREATE TABLE if not exists landmark_type(
-lm_name VARCHAR(100) references landmarks(lm_name),
+lm_name VARCHAR(100),-- references landmarks(lm_name),
 ltype VARCHAR(50), --CHECK (ltype in ('restaurant', 'cultural', 'nightlife', 'sights')) -- change according to data
 PRIMARY KEY (lm_name, ltype)
 );
 
 -- allows us to store more than one filter per landmark, we dont need it but including it in case we want it
 CREATE TABLE if not exists tags(
-lm_name VARCHAR(100) references landmarks(lm_name),
+lm_name VARCHAR(100),-- references landmarks(lm_name),
 lm_tag VARCHAR(100) NOT NULL,
 PRIMARY KEY (lm_name, lm_tag)
+);
+
+CREATE TABLE if not exists favs(
+fav_name VARCHAR(100) PRIMARY KEY,
+loc VARCHAR(100),
+maplink VARCHAR(200) NOT NULL, 
+rating VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE if not exists favtags(
+fav_name VARCHAR(100) references favs(fav_name),
+fav_tag VARCHAR(100) NOT NULL,
+PRIMARY KEY (fav_name, fav_tag)
 );
