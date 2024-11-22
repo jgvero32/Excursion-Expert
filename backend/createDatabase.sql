@@ -53,7 +53,7 @@ lm_name VARCHAR(100),-- references landmarks(lm_name),
 lm_tag VARCHAR(100) NOT NULL,
 PRIMARY KEY (lm_name, lm_tag)
 );
-
+--should work same as landmarks but no itinerary column
 CREATE TABLE if not exists favs(
 fav_name VARCHAR(100) PRIMARY KEY,
 loc VARCHAR(100),
