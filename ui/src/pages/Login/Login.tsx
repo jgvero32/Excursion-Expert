@@ -10,38 +10,8 @@ import {
 } from "@mui/material";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/authContext";
-import "./Login.scss";
 
 type LocationState = { redirectedFrom: string };
-
-const CssTextField = styled(TextField)({
-  "& label": {
-    color: "#FFFFFF",
-  },
-  "& label.Mui-focused": {
-    color: "#FFFFFF",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "#413C58",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "#FFFFFF",
-    },
-    "&:hover fieldset": {
-      borderColor: "#B279A7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#B279A7",
-    },
-    "& input": {
-      color: "#FFFFFF",
-    },
-    "& input::placeholder": {
-      color: "#413C58",
-    },
-  },
-});
 
 export function Login() {
   const { logIn, authenticated, authError } = useAuth();
@@ -81,24 +51,26 @@ export function Login() {
           Log In
         </Typography>
         <Box component="form" className="login-form" onSubmit={handleSubmit}>
-          <CssTextField
+          <TextField
             label="Username"
             name="username"
-            placeholder="Enter your username here"
             fullWidth
             required
             margin="normal"
-            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
+            }}
           />
-          <CssTextField
+          <TextField
             label="Password"
             type="password"
             name="password"
-            placeholder="Enter your password here"
             fullWidth
             required
             margin="normal"
-            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              style: { backgroundColor: "#ffffff", borderRadius: "8px" },
+            }}
           />
           {authError && (
             <Typography color="error" style={{ marginBottom: "10px" }}>

@@ -84,18 +84,20 @@ export function Itineraries() {
           <Typography className="itinerary-name" variant="h5" gutterBottom>
             {selectedItinerary.itineraryName}
           </Typography>
-          <AttractionCards
-            data={selectedItinerary.places}
-            favorites={favorites}
-            onFavoriteClick={handleFavoriteClick}
-            onAddToItinerary={handleAddToItinerary}
-            removeFromItinerary={(item: Place) =>
-              handleRemoveFromItinerary(item)
-            }
-            showButtons={false}
-            showDelete={true}
-            itinerary={itinerary}
-          />
+          <div style={{overflow: "scroll", height: "70vh"}}>
+            <AttractionCards
+              data={selectedItinerary.places}
+              favorites={favorites}
+              onFavoriteClick={handleFavoriteClick}
+              onAddToItinerary={handleAddToItinerary}
+              removeFromItinerary={(item: Place) =>
+                handleRemoveFromItinerary(item)
+              }
+              showButtons={false}
+              showDelete={true}
+              itinerary={itinerary}
+            />
+          </div>
           <div className="button-container">
             <Button
               className="button"
