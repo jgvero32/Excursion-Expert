@@ -17,6 +17,8 @@ import { useAuth } from "../../../../auth/authContext";
 import { RiseLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
+import { AreYouSureModal } from "../AreYouSureModal/AreYouSureModal";
+
 
 interface AttractionProps {
   city: string;
@@ -161,6 +163,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [shoppingData, setShoppingData] = useState<Place[]>([]);
   const [itineraryName, setItineraryName] = useState("");
   const [noItineraryError, setNoItineraryError] = useState("");
+  const [wantsToLeave, setWantsToLeave] = useState(false);
 
   const navigate = useNavigate();
 
@@ -289,7 +292,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
   const handleBackNavigation = () => {
     if (currentState === "sights") {
-      onChooseAnother();
+      setWantsToLeave(true);
     } else {
       const previousStates: Record<StateType, StateType> = {
         food: "sights",
@@ -380,6 +383,10 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
     }
   };
 
+  const handleCloseModal = () => {
+    setWantsToLeave(false);
+  }
+
   const stateMapping: { [key in StateType]: number } = {
     sights: 0,
     food: 1,
@@ -399,6 +406,16 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
   return (
     <div className="attractions">
+      {wantsToLeave && (
+          <div>
+            <AreYouSureModal 
+              openModal={wantsToLeave}     
+              onCloseStay={handleCloseModal}      
+              onCloseLeave={onChooseAnother} 
+            />
+          </div>
+      
+      )}
       {currentState !== "savedItinerary" && (
         <div className="attractions__stepper">
           <Box sx={{ width: "80%" }}>
