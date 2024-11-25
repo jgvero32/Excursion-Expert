@@ -10,8 +10,15 @@ dotenv.config();
 const app = express();
 
 // Configure CORS
+const allowedOrigins = ['http://localhost:3000', 'https://excursion-expert.vercel.app'];
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Important for cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
