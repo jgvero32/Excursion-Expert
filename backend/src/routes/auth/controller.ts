@@ -24,6 +24,7 @@ export class AuthController {
     res: Response
   ): Promise<void> {
     try {
+      console.log('Registering user');
       const registerRequest: RegisterRequest = req.body;
       const result = await AuthService.register(registerRequest);
       res.status(201).json(result);

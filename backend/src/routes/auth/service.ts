@@ -49,6 +49,8 @@ export class AuthService {
       [email, username]
     );
 
+    console.log('Registering user in another function');
+
     if (existingUser.rows.length) {
       throw new Error('Email or username already registered');
     }
