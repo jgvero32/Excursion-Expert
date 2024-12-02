@@ -43,7 +43,7 @@ interface AuthState {
 }
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000/api";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
 
 const unauthorizedState: AuthState = {
   isAuthenticating: false,
@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       setAuthData((prev) => ({ ...prev, isAuthenticating: true }));
 
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (data: RegisterData): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logIn = async (username: string, password: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -237,7 +237,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logOut = async (): Promise<void> => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -254,7 +254,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const saveItinerary = async (itinerary: any): Promise<void> => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/itineraries/save-itinerary`, {
+    const response = await fetch(`${API_BASE_URL}/api/itineraries/save-itinerary`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -280,7 +280,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const getItineraries = async (username: string): Promise<Itinerary[]> => {
     const token = localStorage.getItem("token");
     const response = await fetch(
-      `${API_BASE_URL}/itineraries/get-itineraries?username=${username}`,
+      `${API_BASE_URL}/api/itineraries/get-itineraries?username=${username}`,
       {
         method: "GET",
         credentials: "include",
