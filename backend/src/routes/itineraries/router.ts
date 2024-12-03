@@ -10,4 +10,7 @@ router.get('/get-itineraries', authenticateToken, ItineraryController.getItinera
 
 router.delete('/delete-itinerary/:itineraryId', authenticateToken, ItineraryController.deleteItinerary.bind(ItineraryController));
 
+router.delete('/delete-from-itinerary', authenticateToken, ItineraryController.deleteFromItinerary.bind(ItineraryController));
+
+
 export default router;

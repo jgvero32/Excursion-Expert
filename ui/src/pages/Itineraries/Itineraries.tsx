@@ -8,10 +8,14 @@ import {
   CardContent,
   Chip,
   Stack,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Button,
 } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AttractionCards } from "../StartAnAdventure/components/Attractions/AttractionCards/AttractionCards";
 import { Place } from "../StartAnAdventure/components/Attractions/Attractions";
-import { Button } from "@mui/material";
 import { RiseLoader } from "react-spinners";
 import { DeleteOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -26,12 +30,10 @@ export interface Itinerary {
 }
 
 export function Itineraries() {
-  const { getItineraries, deleteItinerary, currentUser } = useAuth();
+  const { getItineraries, deleteItinerary, deleteFromItinerary, currentUser } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [itineraries, setItineraries] = useState<Itinerary[]>([]);
-  const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(
-    null
-  );
+  const [expanded, setExpanded] = useState<string | false>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -56,17 +58,36 @@ export function Itineraries() {
 
   const handleAddToItinerary = (item: Place) => {};
 
-  const handleItineraryClick = (itinerary: Itinerary) => {
-    setSelectedItinerary(itinerary);
-  };
+  const handleRemoveFromItinerary = async (item: Place, itinerary: Itinerary) => {
+    console.log(itinerary.places.length);
+    console.log("Removing item from itinerary:", item);
+    try {
+      setIsLoading(true);
+      
+      console.log("Deleting itinerary with id:", item);
+      await deleteFromItinerary(itinerary.id, item.displayName?.text ?? "");
+      const updatedItinerary = await getItineraries(currentUser?.username ?? "");
+      setItineraries(updatedItinerary);
+      const updatedPlaces = itinerary.places.filter(
+        (place) => place.displayName?.text !== item.displayName?.text
+      );
+      setItineraries((prev) =>
+        prev.map((it) =>
+          it.id === itinerary.id ? { ...it, places: updatedPlaces } : it
+        )
+      );
 
-
-  const handleRemoveFromItinerary = async (item: Place) => {
-    //TODO: write remove from itinerary functionality
+      if (updatedPlaces.length === 0) {
+        handleRemoveItinerary(itinerary);
+      }
+    } catch (error) {
+      console.error("Error deleting itinerary:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRemoveItinerary = async (item: Itinerary) => {
-    //TODO: write remove from itinerary functionality
     try {
       setIsLoading(true);
       console.log("Deleting itinerary with id:", item.id);
@@ -78,10 +99,13 @@ export function Itineraries() {
       setIsLoading(false);
     }
   };
-  const [itinerary] = useState<Place[]>([]);
-  
+
+  const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   return (
+    <div className="itineraries">
     <Container>
       <Typography className="itineraries-title">Your Itineraries!</Typography>
       {isLoading ? (
@@ -95,68 +119,49 @@ export function Itineraries() {
         >
           <RiseLoader color="#413C58" />
         </Container>
-      ) : selectedItinerary ? ( // this is for when an itinerary is selected and we should see all places in that itinerary
-        <div className="places-in-itinerary">
-          <Typography className="itinerary-name" variant="h5" gutterBottom>
-            {selectedItinerary.itineraryName}
-          </Typography>
-          <div style={{overflow: "scroll", height: "70vh"}}>
-            <AttractionCards
-              data={selectedItinerary.places}
-              favorites={favorites}
-              onFavoriteClick={handleFavoriteClick}
-              onAddToItinerary={handleAddToItinerary}
-              removeFromItinerary={(item: Place) =>
-                handleRemoveFromItinerary(item)
-              }
-              showButtons={false}
-              showDelete={true}
-              itinerary={itinerary}
-            />
-          </div>
-          <div className="button-container">
-            <Button
-              className="button"
-              onClick={() => setSelectedItinerary(null)}
-            >
-              Back to Itineraries
-            </Button>
-          </div>
-        </div>
       ) : (
-        // this is for when no itinerary is selected aka we're only seeing itineraries
         <>
           {itineraries.length !== 0 ? (
             <List className="cards">
               {itineraries.map((itinerary) => (
-                <Card
+                <Accordion
                   key={itinerary.id}
-                  className="card"
-                  onClick={() => handleItineraryClick(itinerary)}
-                  sx={{ mb: 2 }}
+                  expanded={expanded === itinerary.id}
+                  onChange={handleAccordionChange(itinerary.id)}
                 >
-                  <CardContent className="card__content">
-                    <span className="card__content__container">
-                      <Typography className="card__content__container__text">
-                        {itinerary.itineraryName}
-                      </Typography>
-                      <DeleteOutline
-                        className="delete-icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveItinerary(itinerary);
-                        }}
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls={`${itinerary.id}-content`}
+                    id={`${itinerary.id}-header`}
+                  >
+                    <Typography className="itinerary-name" gutterBottom>
+                      {itinerary.itineraryName}
+                    </Typography>
+                    <DeleteOutline
+                      className="delete-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveItinerary(itinerary);
+                      }}
+                    />
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <div style={{ overflow: "scroll", height: "70vh" }}>
+                      <AttractionCards
+                        data={itinerary.places}
+                        favorites={favorites}
+                        onFavoriteClick={handleFavoriteClick}
+                        onAddToItinerary={handleAddToItinerary}
+                        removeFromItinerary={(item: Place) =>
+                          handleRemoveFromItinerary(item, itinerary)
+                        }
+                        showButtons={false}
+                        showDelete={true}
+                        itinerary={itinerary.places}
                       />
-                    </span>
-                    <Stack direction="row" spacing={1}>
-                      <Chip
-                        key={`${itinerary.id}`}
-                        label={itinerary.city}
-                        size="small"
-                      />
-                    </Stack>
-                  </CardContent>
-                </Card>
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
               ))}
             </List>
           ) : (
@@ -191,5 +196,6 @@ export function Itineraries() {
         </>
       )}
     </Container>
+    </div>
   );
 }

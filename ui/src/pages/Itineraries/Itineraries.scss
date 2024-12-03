@@ -1,67 +1,80 @@
+.itineraries {
+  overflow-y: auto;
+}
+
 .card {
-    width: -webkit-fill-available;
-    max-width: 500px;
-    height: fit-content;
-    padding: 10px;
-    background-color: #A3C4BC;
+  width: -webkit-fill-available;
+  max-width: 500px;
+  height: fit-content;
+  padding: 10px;
+  background-color: #A3C4BC;
+  border-radius: 8px;
+  &__content {
     border-radius: 8px;
-    &__content {
-      border-radius: 8px;
-      background-color: #FFF;
-      &__container{
-        display: flex;
-        justify-content: space-between;
-        &__text {
-          color: #413C58;
-          font-family: Lato;
-          font-size: 20px;
-          font-weight: 700;
-        }
-        &__fav {
-          color: red;
-        }
+    background-color: #FFF;
+    &__container {
+      display: flex;
+      justify-content: space-between;
+      &__text {
+        color: #413C58;
+        font-family: Lato;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      &__fav {
+        color: red;
       }
     }
   }
-  .cards {
-    max-height: 70vh;
-    overflow-y: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
+}
 
-  .button-container {
-    padding-top: 25px;
-    text-align: center;
-  }
-  
-  .button {
-    background-color: #B279A7;
-    color: #FFF;
-    text-transform: none;
-    &:hover {
-      background-color: #874f7b;
-    }
-  }
-  .delete-icon {
-    color: #874f7b;
-  }
+.cards {
+  max-height: 70vh;
+  max-width: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .itineraries-title {
-    padding: 18px 0px;
-    color: #413C58;
-    font-family: Lato;
-    font-size: 40px;
-    font-weight: 700;
+.button-container {
+  padding-top: 25px;
+  text-align: center;
+}
+
+.button {
+  background-color: #B279A7;
+  color: #FFF;
+  text-transform: none;
+  &:hover {
+    background-color: #874f7b;
   }
-  .itinerary-name {
-    text-align: center;
-    color: #413C58;
-    font-family: Lato;
-    font-size: 30px;
-    font-weight: 700;
-  }
+}
+
+.delete-icon {
+  color: #874f7b;
+  cursor: pointer;
+  padding-top: 9px;
+  margin-left: auto;
+}
+
+.itineraries-title {
+  padding: 18px 0px;
+  color: #413C58;
+  font-family: Lato;
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.itinerary-name {
+  color: #413C58;
+  font-family: Lato;
+  font-size: 20px;
+  padding-top: 6px;
+  font-weight: 700;
+}
 
 .no-itineraries {
   display: flex;

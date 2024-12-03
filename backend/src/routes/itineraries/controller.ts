@@ -48,4 +48,18 @@ export class ItineraryController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  static async deleteFromItinerary(
+    req: AuthRequest,
+    res: Response
+  ): Promise<void> {
+    try {
+      const {itineraryId, placeName} = req.body;
+
+      await ItineraryService.deleteFromItinerary(itineraryId, placeName);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }
