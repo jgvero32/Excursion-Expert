@@ -198,7 +198,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
 
       const meetsRating = place.rating
         ? place.rating >= filters.minRating
-        : true;
+        : filters.minRating === 0;
 
       const isOpenNow = filters.openNow
         ? place.businessStatus === "OPERATIONAL"
