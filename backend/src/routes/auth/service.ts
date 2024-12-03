@@ -43,6 +43,7 @@ export class AuthService {
 
   // Register method
   static async register({ username, email, password }: RegisterRequest) {
+    console.log('are we in register function');
   try {
     const existingUser = await pool.query(
       'SELECT username FROM users WHERE email = $1 OR username = $2',
