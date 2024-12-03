@@ -124,11 +124,15 @@ export class ItineraryService {
         id: rows.find((row: any) => row.iter_name === iterName).iter_id
       }));
   
-      console.log(itineraries);
+      // console.log(itineraries);
       return itineraries;
     } catch (error) {
       console.error("Error getting itineraries:", error);
       throw error;
     }
+  }
+
+  static async deleteItinerary(iter_id: string): Promise<void> {
+    
   }
 }

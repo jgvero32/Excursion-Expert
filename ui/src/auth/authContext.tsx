@@ -33,6 +33,7 @@ interface AuthContextValue {
   clearError: () => void;
   saveItinerary: (itinerary: any) => Promise<void>;
   getItineraries: (username: string) => Promise<Itinerary[]>;
+  deleteItinerary: (itineraryId: string) => Promise<void>;
 }
 
 interface AuthState {
@@ -325,6 +326,70 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const deleteItinerary = async (itineraryId: string): Promise<void> => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/api/itineraries/delete-itinerary/${itineraryId}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+
+    if (response.ok) {
+      console.log("Itinerary deleted:", itineraryId);
+    } else {
+      console.error("Error deleting itinerary:", response.statusText);
+    }
+  
+    // const token = localStorage.getItem("token");
+    // const response = await fetch(
+    //   `${API_BASE_URL}/api/itineraries/get-itineraries?username=${username}`,
+    //   {
+    //     method: "GET",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: token ? `Bearer ${token}` : "",
+    //     },
+    //   }
+    // );
+
+    // if (response.ok) {
+    //   const data = await response.json();
+
+    //   // Transform the data
+    //   const transformedData = data.map((itinerary: any) => {
+    //     const { name, places, ...rest } = itinerary;
+    //     const transformedPlaces = places.map((place: any) => {
+    //       const { name, ...placeRest } = place;
+    //       return {
+    //         ...placeRest,
+    //         displayName: {
+    //           text: name,
+    //           languageCode: "en",
+    //         },
+    //       };
+    //     });
+    //     return {
+    //       ...rest,
+    //       displayName: {
+    //         text: `Itinerary for ${name}`,
+    //         languageCode: "en",
+    //       },
+    //       places: transformedPlaces,
+    //     };
+    //   });
+    //   console.log("Itineraries fetched:", transformedData);
+
+    //   return transformedData;
+    // } else {
+    //   console.error("Error fetching itineraries:", response.statusText);
+    //   return [];
+    // }
+  };
+
   // Check auth status when component mounts
   useEffect(() => {
     checkAuthStatus();
@@ -350,6 +415,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearError,
       saveItinerary,
       getItineraries,
+      deleteItinerary,
       ...authData,
     }),
     [authData, checkAuthStatus]

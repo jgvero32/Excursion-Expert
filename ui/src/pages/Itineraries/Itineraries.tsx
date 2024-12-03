@@ -26,7 +26,7 @@ export interface Itinerary {
 }
 
 export function Itineraries() {
-  const { getItineraries, currentUser } = useAuth();
+  const { getItineraries, deleteItinerary, currentUser } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [itineraries, setItineraries] = useState<Itinerary[]>([]);
   const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(
@@ -60,10 +60,26 @@ export function Itineraries() {
     setSelectedItinerary(itinerary);
   };
 
-  const handleRemoveFromItinerary = (item: Place) => {
+
+  const handleRemoveFromItinerary = async (item: Place) => {
     //TODO: write remove from itinerary functionality
   };
+
+  const handleRemoveItinerary = async (item: Itinerary) => {
+    //TODO: write remove from itinerary functionality
+    try {
+      setIsLoading(true);
+      console.log("Deleting itinerary with id:", item.id);
+      await deleteItinerary(item.id);
+      setItineraries(itineraries.filter(itinerary => itinerary.id !== item.id));
+    } catch (error) {
+      console.error("Error deleting itinerary:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const [itinerary] = useState<Place[]>([]);
+  
 
   return (
     <Container>
@@ -124,7 +140,13 @@ export function Itineraries() {
                       <Typography className="card__content__container__text">
                         {itinerary.itineraryName}
                       </Typography>
-                      <DeleteOutline className="delete-icon" />
+                      <DeleteOutline
+                        className="delete-icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveItinerary(itinerary);
+                        }}
+                      />
                     </span>
                     <Stack direction="row" spacing={1}>
                       <Chip

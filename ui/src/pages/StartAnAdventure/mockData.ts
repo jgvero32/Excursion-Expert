@@ -831,7 +831,7 @@ export const mockData = [
       },
       "businessStatus": "OPERATIONAL",
       "displayName": {
-        "text": "Loop walk mural",
+        "text": "Loop Mural",
         "languageCode": "en"
       },
       "goodForChildren": true,

@@ -93,11 +93,23 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                     ))}
                 </Stack>
                 <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                  <Rating value={result.rating || 0} readOnly precision={0.5} />
+                  {!showButtons ? (
+                    <Rating value={result.rating ? parseFloat(result.rating.toString()?.match(/[\d.]+/)?.[0] || "0") || 0 : 0} readOnly precision={0.5} />
+                  ) : (
+                    <Rating value={result.rating || 0} readOnly precision={0.5} />
+                  )}
                   {result.rating ? (
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      Rating: {result.rating} ({result.userRatingCount} reviews)
-                    </Typography>
+                    <>
+                      {!showButtons ? (
+                        <Typography variant="body2" sx={{ ml: 1 }}>
+                          {result.rating}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" sx={{ ml: 1 }}>
+                          Rating: {result.rating} ({result.userRatingCount} reviews)
+                        </Typography>
+                      )}
+                    </>
                   ) : (
                     <Typography variant="body2" sx={{ ml: 1 }}>
                       No rating available

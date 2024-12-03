@@ -8,4 +8,6 @@ router.post('/save-itinerary', authenticateToken, ItineraryController.saveItiner
 
 router.get('/get-itineraries', authenticateToken, ItineraryController.getItineraries.bind(ItineraryController));
 
+router.delete('/delete-itinerary/:itineraryId', authenticateToken, ItineraryController.deleteItinerary.bind(ItineraryController));
+
 export default router;

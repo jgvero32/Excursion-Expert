@@ -32,4 +32,20 @@ export class ItineraryController {
       res.status(400).json({ message: error.message });
     }
   }
+  static async deleteItinerary(
+    req: AuthRequest,
+    res: Response
+  ): Promise<void> {
+    try {
+      const itineraryId = req.params.itineraryId;
+      if (!itineraryId) {
+        res.status(400).json({ message: "Itinerary ID is required" });
+        return;
+      }
+      await ItineraryService.deleteItinerary(itineraryId);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }
