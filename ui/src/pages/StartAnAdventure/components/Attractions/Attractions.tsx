@@ -59,6 +59,7 @@ type StateType =
   | "savedItinerary";
 
 export interface Place {
+  photos?: Photos[];
   id: string;
   types: string[];
   formattedAddress: string;
@@ -99,6 +100,11 @@ export interface Place {
     valetParking?: boolean;
     paidGarageParking?: boolean;
   };
+}
+
+export interface Photos {
+  name: string;
+  googleMapsUri: string;
 }
 
 export interface FilterState {

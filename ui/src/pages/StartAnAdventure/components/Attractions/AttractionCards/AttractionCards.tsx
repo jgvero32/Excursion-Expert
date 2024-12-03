@@ -1,4 +1,7 @@
 import React from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import { FavoriteBorder, Favorite, DeleteOutline } from "@mui/icons-material";
 import {
   Box,
@@ -45,11 +48,21 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
   };
 
   const handleLearnMore = (place: Place) => {
-    // Create a Google Maps search URL using the place's name and address
     const searchQuery = `${place.displayName?.text} ${place.formattedAddress}`;
     const encodedQuery = encodeURIComponent(searchQuery);
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
     window.open(mapsUrl, "_blank");
+  };
+
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    adaptiveHeight: true,
+    adaptiveWidth: true,
+    centerMode: true,
   };
 
   return (
@@ -88,6 +101,32 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                   onChange={() => onFavoriteClick(result.id)}
                   />
                 </span>
+
+                <Box sx={{ marginTop: "10px", marginBottom: "10px" }}>
+                  {Array.isArray(result.photos) && result.photos.length > 0 ? (
+                    <Slider  {...settings}>
+                      {result.photos.map((photo, photoIndex) => {
+                        const imageUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=150&maxWidthPx=400&key=AIzaSyBR1eomLnHl2SVyuAYZ4Cj6eCTGAsqg00I`;
+                        return (
+                          <img
+                            className="card__content__slider"
+                            key={photoIndex}
+                            src={imageUrl}
+                            alt={`Photo ${photoIndex}`}
+                          />
+                        );
+                      })}
+                    </Slider>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{ textAlign: "center", color: "gray" }}
+                    >
+                      No available photos
+                    </Typography>
+                  )}
+                </Box>
+
                 <Stack direction="row" spacing={1}>
                   {formatTypes(result.types)
                     .slice(0, 4)
