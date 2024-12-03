@@ -133,6 +133,24 @@ export class ItineraryService {
   }
 
   static async deleteItinerary(iter_id: string): Promise<void> {
-    
+    console.log('deleteItinerary', iter_id);
+    try {
+      const result1 = await pool.query(
+        "DELETE FROM tags WHERE lm_name IN (SELECT lm_name FROM landmarks WHERE iter_id = $1)", 
+        [iter_id]
+      );
+      const result2 = await pool.query(
+        "DELETE FROM landmarks WHERE iter_id = $1", 
+        [iter_id]
+      );
+      const result3 = await pool.query(
+        "DELETE FROM itineraries WHERE iter_id = $1", 
+        [iter_id]
+      );
+      console.log("Itinerary and associated data deleted successfully");
+    } catch (error) {
+      console.error("Error deleting itinerary:", error);
+    }
+
   }
 }
