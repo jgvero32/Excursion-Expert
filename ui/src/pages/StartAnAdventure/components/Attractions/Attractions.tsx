@@ -143,6 +143,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const [data, setData] = useState<Place[]>([]);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [itinerary, setItinerary] = useState<Place[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, Infinity],
     minRating: 0,
@@ -386,6 +387,18 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
   const handleCloseModal = () => {
     setWantsToLeave(false);
   }
+  
+  const handleAddToFavorites = (itemId: string) => {
+    console.log("Adding to favorites:", itemId);
+    
+    setFavorites((prevFavorites) => {
+      if (prevFavorites.includes(itemId)) {
+      return prevFavorites.filter((id) => id !== itemId);
+      } else {
+      return [...prevFavorites, itemId];
+      }
+    });
+  }
 
   const stateMapping: { [key in StateType]: number } = {
     sights: 0,
@@ -557,11 +570,9 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   <AttractionCards
                     data={itinerary}
                     onAddToItinerary={handleAddToItinerary}
-                    favorites={[]}
+                    favorites={favorites}
                     onFavoriteClick={(itemId: string) =>
-                      handleAddToItinerary(
-                        itinerary.find((item) => item.id === itemId)!
-                      )
+                      handleAddToFavorites(itemId)
                     }
                     removeFromItinerary={(item: Place) =>
                       setItinerary((prev) =>
@@ -600,11 +611,9 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               <AttractionCards
                 data={data}
                 onAddToItinerary={handleAddToItinerary}
-                favorites={[]}
+                favorites={favorites}
                 onFavoriteClick={(itemId: string) =>
-                  handleAddToItinerary(
-                    itinerary.find((item) => item.id === itemId)!
-                  )
+                  handleAddToFavorites(itemId)
                 }
                 removeFromItinerary={(item: Place) =>
                   setItinerary((prev) => prev.filter((i) => i.id !== item.id))

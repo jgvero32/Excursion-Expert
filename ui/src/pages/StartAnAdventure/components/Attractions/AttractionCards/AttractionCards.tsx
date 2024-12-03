@@ -74,15 +74,18 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
               >
                 <span className="card__content__container">
                   <Typography className="card__content__container__text">
-                    {result.displayName?.text}
+                  {result.displayName?.text}
                   </Typography>
                   <Checkbox
-                    icon={<FavoriteBorder />}
-                    checkedIcon={
-                      <Favorite className="card__content__container__fav" />
-                    }
-                    checked={favorites.includes(itemId)}
-                    onChange={() => onFavoriteClick(itemId)}
+                  icon={<FavoriteBorder />}
+                  checkedIcon={
+                    <Favorite
+                    className="card__content__container__fav"
+                    sx={{ color: favorites.includes(result.id) ? "pink" : "inherit" }}
+                    />
+                  }
+                  checked={favorites.includes(result.id)}
+                  onChange={() => onFavoriteClick(result.id)}
                   />
                 </span>
                 <Stack direction="row" spacing={1}>
