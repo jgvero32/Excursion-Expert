@@ -1,0 +1,25 @@
+.slick-prev, .slick-next {
+    background-color: #b279a7 !important;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
+  
+  .slick-prev:before, .slick-next:before {
+    color: white;
+    font-size: 20px;
+  }
+  
+  .slick-slide {
+    margin: 0 -100px; 
+
+  }
+  
+  .slick-slide img {
+    width: 100%;
+    height: auto;
+  }
+
+  .inner-slider div {
+    
+  }

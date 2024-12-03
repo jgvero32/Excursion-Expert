@@ -2,6 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "./custom-slick.css"; // Import the custom CSS file
 import { FavoriteBorder, Favorite, DeleteOutline } from "@mui/icons-material";
 import {
   Box,
@@ -61,7 +62,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
     slidesToShow: 1,
     slidesToScroll: 1,
     adaptiveHeight: true,
-    adaptiveWidth: true,
+    // adaptiveWidth: true,
     centerMode: true,
   };
 
@@ -102,7 +103,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                   />
                 </span>
 
-                <Box sx={{ marginTop: "10px", marginBottom: "10px" }}>
+                <Box sx={{ margin: "15px" }}>
                   {Array.isArray(result.photos) && result.photos.length > 0 ? (
                     <Slider  {...settings}>
                       {result.photos.map((photo, photoIndex) => {
@@ -122,7 +123,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                       variant="body2"
                       sx={{ textAlign: "center", color: "gray" }}
                     >
-                      No available photos
+                      
                     </Typography>
                   )}
                 </Box>
