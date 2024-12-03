@@ -29,7 +29,7 @@ export class AuthController {
       const result = await AuthService.register(registerRequest);
       res.status(201).json(result);
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ message: "yoyoyo" });
     }
   }
 
