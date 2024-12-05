@@ -112,8 +112,10 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                   
                       const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, retries: number = 6) => {
                         if (retries > 0 && e.currentTarget) {
-                            e.currentTarget.src = imageUrl; // Retry loading the image
-                            handleImageError(e, retries - 1);
+                            setTimeout(() => {
+                              e.currentTarget.src = imageUrl; // Retry loading the image
+                              handleImageError(e, retries - 1);
+                          }, 500);
                         } else {
                           e.currentTarget.src = "";
                           e.currentTarget.alt = "Image not available";
