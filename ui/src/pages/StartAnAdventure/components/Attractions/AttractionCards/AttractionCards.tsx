@@ -78,7 +78,8 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
               display: "flex",
               paddingBottom: "30px",
               alignItems: "center",
-              justifyContent: "space-evenly",
+              justifyContent: "center",
+              gap: 3,
             }}
           >
             <Card className="card">
@@ -110,7 +111,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                       const imageUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=150&maxWidthPx=400&key=AIzaSyBR1eomLnHl2SVyuAYZ4Cj6eCTGAsqg00I`;
                   
                       const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, retries: number = 3) => {
-                        if (retries > 0) {
+                        if (retries > 0 && e.currentTarget) {
                           setTimeout(() => {
                             e.currentTarget.src = imageUrl; // Retry loading the image
                             handleImageError(e, retries - 1);
@@ -189,7 +190,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 </Box>
                 {showDelete && (
                   <IconButton
-                    sx={{ position: "absolute", top: 50, right: 17 }}
+                    sx={{ position: "absolute", top: 16, right: 45 }}
                     onClick={() => removeFromItinerary(result)}
                   >
                     <DeleteOutline />
@@ -197,14 +198,12 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 )}
               </CardContent>
             </Card>
-            {showButtons && (
-              <>
+            <Box sx={{ display: "flex", gap: 3 }}>
                 <Button
                   sx={{
                     width: "152px",
                     height: "40px",
                     color: "#FFF",
-                    margin: "10px",
                     textTransform: "none",
                     backgroundColor: "#413C58",
                   }}
@@ -212,6 +211,8 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 >
                   Learn More
                 </Button>
+                {showButtons && (
+              <>
                 <Button
                   sx={{
                     width: "157px",
@@ -230,6 +231,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                 </Button>
               </>
             )}
+            </Box>
           </Box>
         );
       })}

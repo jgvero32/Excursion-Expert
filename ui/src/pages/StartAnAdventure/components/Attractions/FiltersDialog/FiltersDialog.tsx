@@ -122,6 +122,11 @@ export const FiltersDialog = ({
                 { value: 150, label: "$150" },
                 { value: 200, label: "$200+" },
               ]}
+              sx={{
+                '& .MuiSlider-thumb': { color: '#4B644A' },
+                '& .MuiSlider-track': { color: '#A3C4BC' },
+                '& .MuiSlider-rail': { color: '#413C58' },
+              }}
             />
           </div>
 
@@ -155,6 +160,12 @@ export const FiltersDialog = ({
                             key as keyof FilterState["amenities"]
                           )
                         }
+                        sx={{
+                          color: '#B279A7',
+                          '&.Mui-checked': {
+                            color: '#413C58',
+                          },
+                        }}
                       />
                     }
                     label={key
@@ -174,6 +185,12 @@ export const FiltersDialog = ({
               <Checkbox
                 checked={localFilters.openNow}
                 onChange={handleOpenNowChange}
+                sx={{
+                  color: '#B279A7',
+                  '&.Mui-checked': {
+                    color: '#413C58',
+                  },
+                }}
               />
             }
             label="Open Now"
@@ -204,6 +221,7 @@ export const FiltersDialog = ({
             onResetFilters();
           }}
           color="primary"
+          sx={{ color: 'white', backgroundColor: '#413C58' }}
         >
           Reset
         </Button>
@@ -211,6 +229,7 @@ export const FiltersDialog = ({
           onClick={handleApplyFilters}
           color="primary"
           variant="contained"
+          sx={{ color: 'white', backgroundColor: '#B279A7' }}
         >
           Apply
         </Button>

@@ -495,6 +495,7 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
                   sx={{
                     borderColor: "#413C58",
                     color: "#413C58",
+                    marginBottom: "10px",
                     "&:hover": {
                       borderColor: "#B279A7",
                       backgroundColor: "rgba(178, 121, 167, 0.04)",
@@ -551,24 +552,22 @@ export const Attractions = ({ city, onChooseAnother }: AttractionProps) => {
               {itinerary.length !== 0 ? (
                 <>
                   <Box
-                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      mb: 2,
+                      width: "80em",
+                      gap: 2,
+                    }}
                   >
                     <div style={{ width: "60%" }}>
                       Selected Locations ({itinerary.length})
                     </div>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      mb: 2,
-                    }}
-                  >
                     <CssTextField
                       label="Enter itinerary name here"
                       id="custom-css-outlined-input"
-                      sx={{ width: "60%" }}
+                      sx={{ width: "60%", justifyContent: "center"}}
                       value={itineraryName}
                       onChange={(e) => setItineraryName(e.target.value)}
                     />
