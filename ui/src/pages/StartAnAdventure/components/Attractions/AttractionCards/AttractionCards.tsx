@@ -132,10 +132,12 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                       );
                     })}
                   </Slider>
+                  ) : result.rating && result.rating.toString().includes("Rating") ? (
+                    <></>
                   ) : (
                     <Typography
                       variant="body2"
-                      sx={{ color: "gray"}}
+                      sx={{ color: "gray" }}
                     >
                       No images available.
                     </Typography>
