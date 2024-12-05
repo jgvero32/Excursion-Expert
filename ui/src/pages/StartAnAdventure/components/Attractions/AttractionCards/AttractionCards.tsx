@@ -110,7 +110,7 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                     {result.photos.map((photo, photoIndex) => {
                       const imageUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=150&maxWidthPx=400&key=AIzaSyBR1eomLnHl2SVyuAYZ4Cj6eCTGAsqg00I`;
                   
-                      const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, retries: number = 3) => {
+                      const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, retries: number = 6) => {
                         if (retries > 0 && e.currentTarget) {
                           setTimeout(() => {
                             e.currentTarget.src = imageUrl; // Retry loading the image
