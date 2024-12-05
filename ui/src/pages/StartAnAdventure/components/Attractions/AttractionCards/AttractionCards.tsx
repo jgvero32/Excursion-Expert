@@ -105,25 +105,39 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
 
                 <Box sx={{ margin: "15px" }}>
                   {Array.isArray(result.photos) && result.photos.length > 0 ? (
-                    <Slider  {...settings}>
-                      {result.photos.map((photo, photoIndex) => {
-                        const imageUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=150&maxWidthPx=400&key=AIzaSyBR1eomLnHl2SVyuAYZ4Cj6eCTGAsqg00I`;
-                        return (
-                          <img
-                            className="card__content__slider"
-                            key={photoIndex}
-                            src={imageUrl}
-                            alt={`Photo ${photoIndex}`}
-                          />
-                        );
-                      })}
-                    </Slider>
+                    <Slider {...settings}>
+                    {result.photos.map((photo, photoIndex) => {
+                      const imageUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=150&maxWidthPx=400&key=AIzaSyBR1eomLnHl2SVyuAYZ4Cj6eCTGAsqg00I`;
+                  
+                      const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, retries: number = 3) => {
+                        if (retries > 0) {
+                          setTimeout(() => {
+                            e.currentTarget.src = imageUrl; // Retry loading the image
+                            handleImageError(e, retries - 1);
+                          }, 1000);
+                        } else {
+                          e.currentTarget.src = "";
+                          e.currentTarget.alt = "Image not available";
+                        }
+                      };
+                  
+                      return (
+                        <img
+                          className="card__content__slider"
+                          key={photoIndex}
+                          src={imageUrl}
+                          alt={`Photo ${photoIndex}`}
+                          onError={(e) => handleImageError(e)}
+                        />
+                      );
+                    })}
+                  </Slider>
                   ) : (
                     <Typography
                       variant="body2"
-                      sx={{ textAlign: "center", color: "gray" }}
+                      sx={{ color: "gray"}}
                     >
-                      
+                      No images available.
                     </Typography>
                   )}
                 </Box>
@@ -145,11 +159,23 @@ export const AttractionCards: React.FC<AttractionCardsProps> = ({
                     <>
                       {!showButtons ? (
                         <Typography variant="body2" sx={{ ml: 1 }}>
-                          {result.rating}
+                         {result.rating.toString().includes("undefined") ? (
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                             No rating available
+                          </Typography>
+                         ) : result.rating.toString().includes("Rating") ?(
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                            {result.rating}
+                          </Typography>
+                         ) : (
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                            {result.rating} ({result.userRatingCount} reviews)
+                          </Typography>
+                         )}
                         </Typography>
                       ) : (
                         <Typography variant="body2" sx={{ ml: 1 }}>
-                          Rating: {result.rating} ({result.userRatingCount} reviews)
+                          {result.rating} ({result.userRatingCount} reviews)
                         </Typography>
                       )}
                     </>
