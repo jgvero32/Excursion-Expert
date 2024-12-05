@@ -1,7 +1,8 @@
 import { SaveItineraryRequest, GetItinerariesRequest, Place } from './models';
 import { v4 as uuidv4 } from 'uuid';
 
-const { pool } = require("../../../dbConfig");
+import pool from '../../../database';
+
 
 export class ItineraryService {
   static async saveItinerary(requestBody: SaveItineraryRequest): Promise<string> {
